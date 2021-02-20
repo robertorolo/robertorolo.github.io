@@ -7,9 +7,7 @@
 </head>
 <body>
 
-<div class="center">
-
-<table style="width:80%">
+<table class="center" style="width:80%">
 
 <tr>
 <td><h2>Google</h2></td>
@@ -75,7 +73,26 @@
 
 </table>
 
-</div>
+<div class="margem" id="lblGreetings"></div>
+
+<script>
+var myDate = new Date();
+var hrs = myDate.getHours();
+
+var greet;
+
+if (hrs < 5)
+    greet = 'Vá dormir!';
+else if (hrs >= 5 && hrs <= 11)
+greet = 'Bom dia!';
+else if (hrs >= 11 && hrs <= 17)
+    greet = 'Boa tarde!';
+else if (hrs >= 17 && hrs <= 24)
+    greet = 'Boa noite!';
+
+document.getElementById('lblGreetings').innerHTML =
+    '<h1>' + greet + '</h1>';
+</script>
 
 </body>
 </html>
