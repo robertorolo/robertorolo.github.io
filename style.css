@@ -1,0 +1,27 @@
+body {
+    color:#2B373D;
+    background:#445760;
+    font-family: 'Roboto', sans-serif;
+}
+
+td {
+    text-align: center; 
+    vertical-align: middle;
+}
+
+.link { 
+    color: #2B373D;
+    text-decoration: none; 
+}
+.link:hover { 
+    color: #FFFFFF; 
+}
+
+ul {
+    list-style-type:none;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+}
