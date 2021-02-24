@@ -1,5 +1,5 @@
 body {
-    color:#EBDBB2;
+    color:#A89984;
     background:#282828;
     font-family: 'Roboto', sans-serif;
 }
@@ -14,7 +14,7 @@ td {
 }
 
 .link { 
-    color: #EBDBB2;
+    color: #A89984;
     text-decoration: none; 
 }
 .link:hover { 
