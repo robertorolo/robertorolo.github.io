@@ -3,14 +3,13 @@
 @import url('file:///home/void/.cache/wal/colors.css');
 
 body {
-    color:#var(--foreground);
+    color:var(--foreground);
     background:var(--background);
     font-family: 'Roboto', sans-serif;
 }
 
 h2 {
     font-size: 72;
-    color:var(--color12)
 }
 
 td {
