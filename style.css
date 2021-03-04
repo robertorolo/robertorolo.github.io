@@ -1,11 +1,16 @@
+/* Import the CSS file.
+   Change 'dylan' to your username. */
+@import url('file:///home/void/.cache/wal/colors.css');
+
 body {
-    color:#A89984;
-    background:#282828;
+    color:#var(--foreground);
+    background:var(--background);
     font-family: 'Roboto', sans-serif;
 }
 
-h1 {
+h2 {
     font-size: 72;
+    color:var(--color12)
 }
 
 td {
@@ -14,11 +19,11 @@ td {
 }
 
 .link { 
-    color: #A89984;
+    color: var(--color5);
     text-decoration: none; 
 }
 .link:hover { 
-    color: #D65D0E; 
+    color: var(--color8); 
 }
 
 ul {
@@ -35,3 +40,4 @@ ul {
     margin-right: auto;
     margin-top: 15%;
 }
+
