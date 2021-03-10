@@ -1,10 +1,10 @@
 /* Import the CSS file.
    Change 'dylan' to your username. */
-@import url('file:///home/void/.cache/wal/colors.css');
+/*@import url('file:///home/void/.cache/wal/colors.css');*/
 
 body {
-    color:var(--foreground);
-    background:var(--background);
+    color:#303443;
+    background:#23252F;
     font-family: 'Roboto', sans-serif;
 }
 
@@ -18,11 +18,11 @@ td {
 }
 
 .link { 
-    color: var(--color5);
+    color: #666F8F;
     text-decoration: none; 
 }
 .link:hover { 
-    color: var(--color8); 
+    color: #EDEDED; 
 }
 
 ul {
@@ -30,7 +30,7 @@ ul {
 }
 
 .margem {
-    margin-left: 80%; 
+    margin-left: 11%; 
     margin-right: auto;
 }
 
@@ -39,4 +39,16 @@ ul {
     margin-right: auto;
     margin-top: 15%;
 }
+
+.alnright { 
+    text-align: left; 
+}
+
+table {
+    table-layout: fixed ;
+    width: 100% ;
+  }
+  td {
+    width: 25% ;
+  }
 
