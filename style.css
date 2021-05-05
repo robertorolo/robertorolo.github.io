@@ -1,3 +1,6 @@
-body {
-    font: normal 14px Roboto;
+body
+{
+    font-family:Roboto;
+    font-size:14px;
+    font-weight:normal;
 }
