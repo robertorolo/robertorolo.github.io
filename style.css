@@ -8,10 +8,17 @@ body
     margin-right:auto;
     text-align: justify;
     text-justify: inter-word;
+	background-color: #282828;
+	color: #a89984;
 }
 
 h1 {
     text-decoration: underline;
+	color: #d79921;
+}
+
+h2 {
+	color: #98971a;
 }
 
 table, th, td {
@@ -21,4 +28,28 @@ table, th, td {
 
 .bot {
     vertical-align: bottom;
+}
+
+.dif {
+    color: #cc241d;
+}
+
+/* unvisited link */
+a:link {
+  color: #458588;
+}
+
+/* visited link */
+a:visited {
+  color: #b16286;
+}
+
+/* mouse over link */
+a:hover {
+  color: #d3869b;
+}
+
+/* selected link */
+a:active {
+  color: blue;
 }
