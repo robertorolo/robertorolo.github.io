@@ -1,6 +1,24 @@
 body
 {
-    font-family:Libertine;
-    font-size:14px;
+    font-family:sans;
+    font-size:18px;
     font-weight:normal;
+    max-width: 900px;
+	margin-left:auto;
+	margin-right:auto;
+	text-align: justify;
+    text-justify: inter-word;
+}
+
+h1 {
+  text-decoration: underline;
+}
+
+table, th, td {
+	vertical-align: center;
+	border-spacing: 30px;
+}
+
+.bot {
+   vertical-align: bottom;
 }
