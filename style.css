@@ -53,3 +53,53 @@ a:visited {
 a:hover {
   color: #8FBCBB;
 }
+
+/* -----------------------------
+   Mobile improvements (patched)
+   Keeps the site minimal, but readable on phones
+-------------------------------- */
+
+* { box-sizing: border-box; }
+
+body {
+    padding: 16px;
+}
+
+/* Prevent overflow on small screens */
+img, iframe {
+    max-width: 100%;
+}
+
+/* Responsive YouTube / embeds */
+iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+  }
+
+/* Stack the header table and increase readability on mobile */
+@media (max-width: 600px) {
+    body {
+        font-size: 17px;
+        line-height: 1.55;
+    }
+
+    table {
+        border-spacing: 12px;
+        width: 100%;
+    }
+
+    table, tr, td {
+        display: block;
+    }
+
+    td {
+        text-align: center;
+        width: 100%;
+    }
+
+    .bot {
+        display: block;
+        margin: 0 auto 12px auto;
+    }
+}
