@@ -1,302 +1,318 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Roberto Rolo</title>
-<link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roberto Rolo | Mining Engineer & Geostatistics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #2E3440;
+            --card: #3B4252;
+            --header-bg: #434C5E;
+            --text-main: #D8DEE9;
+            --text-dim: #9CA3AF;
+            --accent: #88C0D0;
+            --highlight: #A3BE8C;
+            --purple: #B48EAD;
+            --orange: #D08770;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        .container { max-width: 850px; margin: 0 auto; padding: 0 20px; }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 40px 0;
+            border-bottom: 4px solid var(--accent);
+            margin-bottom: 40px;
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
+        }
+
+        @media (min-width: 600px) {
+            .header-content { flex-direction: row; text-align: left; }
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--accent);
+            object-fit: cover;
+        }
+
+        h1 { font-size: 2rem; color: var(--accent); margin-bottom: 5px; }
+        .tagline { font-size: 1.1rem; color: var(--highlight); font-weight: 600; margin-bottom: 15px; }
+
+        .social-links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        @media (min-width: 600px) { .social-links { justify-content: flex-start; } }
+
+        .social-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.85rem;
+            background: var(--bg);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--accent);
+            transition: 0.2s;
+        }
+
+        .social-links a:hover { background: var(--accent); color: var(--bg); }
+
+        section { margin-bottom: 40px; }
+        h2 {
+            font-size: 1.3rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--card);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .company, .edu-inst { color: var(--highlight); font-weight: 700; font-size: 1.1rem; }
+        .date { color: var(--purple); font-size: 0.85rem; font-weight: bold; }
+        .role { display: block; font-weight: 600; margin: 5px 0; color: var(--text-main); }
+        .loc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; }
+
+        ul { list-style: none; margin-top: 10px; }
+        ul li::before { content: "▹"; color: var(--accent); margin-right: 8px; }
+        ul li { font-size: 0.95rem; margin-bottom: 4px; }
+
+        .sub-role {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .pill-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .pill {
+            background: var(--header-bg);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            border: 1px solid var(--accent);
+        }
+
+        /* Youtube Container fix */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background: #000;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        a { color: var(--orange); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
 
-	<table>
-		<tr>
-			<td><img class="bot" src="profile_square.png" alt="Me!" width="200"></td>
-			<td><h1><big>Roberto Mentzingen Rolo</big></h1></td>
-		</tr>
-	</table>
+<header>
+    <div class="container header-content">
+        <img src="profile_square.png" alt="Roberto Rolo" class="profile-img">
+        <div class="intro">
+            <h1>Roberto Mentzingen Rolo</h1>
+            <p class="tagline">Senior Geostatistics & Data Science Consultant</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/robertorolo/">LinkedIn</a>
+                <a href="http://lattes.cnpq.br/5431308485928378">Lattes</a>
+                <a href="https://github.com/robertorolo">GitHub</a>
+                <a href="https://www.researchgate.net/profile/Roberto-Rolo">ResearchGate</a>
+            </div>
+        </div>
+    </div>
+</header>
 
-    <h1>Profile:</h1>
+<main class="container">
+
+    <section id="profile">
+        <h2>Profile</h2>
         <p>Roberto is a Mining Engineer graduated from the Federal University of Ouro Preto (Brazil). He holds a MSc and PhD in Geostatistics from the Federal University of Rio Grande do Sul (Brazil) with a focus on implicit geological modeling and uncertainty assess in geological models. Roberto possesses experience in multivariate ore grades estimation and simulation workflows, resources classification and drill hole spacing analysis. He is proficient in Python programming and experienced in applying Machine Learning techniques to geosciences. He currently serves as a Senior geostatistics and data science consultant at Geovariances.</p>
-        <br>
+    </section>
 
-    <h1>Where I am:</h1>
-        <ul>
-            <li><a href="https://www.linkedin.com/in/robertorolo/">LinkedIn</a></li>
-            <li><a href="http://lattes.cnpq.br/5431308485928378">Lattes</a></li>
-            <li><a href="https://github.com/robertorolo">Github</a></li>
-            <li><a href="https://www.researchgate.net/profile/Roberto-Rolo">ResearchGate</a></li>
-        </ul>
-        <br>
+    <section id="experience">
+        <h2>Work Experience</h2>
 
-    <h1>Work experience:</h1>
-    <h2>Geovariances</h2>
-    <p class="dif">Senior geostatistics and data science consultant</p>
-    <p class="dif"><small>Avon, France - Presential</small></p>
-    <p class="dates"><small>from mars 2024 to present</small></p>
-    <ul>
-        <li>Projects management.</li>
-        <li>Development of custom geostatistical and machine learning based solutions for the mining industry using Python together with the geostatistical software Isatis.neo.</li>
-        <li>Training and mentoring in geostatistics and Python.</li>
-        <li>Consulting in geostatistics.</li>
-    </ul>
-    <br>
+        <div class="card">
+            <div class="card-header"><span class="company">Geovariances</span><span class="date">from march 2024 to present</span></div>
+            <span class="role">Senior geostatistics and data science consultant</span>
+            <p class="loc">Avon, France - Presential</p>
+            <ul>
+                <li>Projects management.</li>
+                <li>Development of custom geostatistical and machine learning based solutions for the mining industry using Python together with the geostatistical software Isatis.neo.</li>
+                <li>Training and mentoring in geostatistics and Python.</li>
+                <li>Consulting in geostatistics.</li>
+            </ul>
+        </div>
 
-    <h2>Eramet</h2>
-        <p class="dif">Geostatistical specialist</p>
-        <p class="dif"><small>Halmahera, Indonesia - Presential</small></p>
-        <p class="dates"><small>from september 2023 to mars 2024</small></p>
-        <ul>
-            <li>Upgrading, maintenance and improvement of the recoverable resource models scripts.</li>
-            <li>Assessment and interpretation of data and results.</li>
-            <li>Drill hole spacing and resources classification studies.</li>
-            <li>Reconciliation program.</li>
-            <li>Implementation and proposition of good practices.</li>
-            <li>Team training in geostatistics and Python.</li>
-        </ul>
-        <br>
+        <div class="card">
+            <div class="card-header"><span class="company">Eramet</span><span class="date">from september 2023 to march 2024</span></div>
+            <span class="role">Geostatistical specialist</span>
+            <p class="loc">Halmahera, Indonesia - Presential</p>
+            <ul>
+                <li>Upgrading, maintenance and improvement of the recoverable resource models scripts.</li>
+                <li>Assessment and interpretation of data and results.</li>
+                <li>Drill hole spacing and resources classification studies.</li>
+                <li>Reconciliation program.</li>
+                <li>Implementation and proposition of good practices.</li>
+                <li>Team training in geostatistics and Python.</li>
+            </ul>
+        </div>
 
-        <h2>Geovariances</h2>
-        <p class="dif">Mineral resources consultant</p>
-        <p class="dif"><small>Belo Horizonte, Brazil - Remote</small></p>
-        <p class="dates"><small>from february 2022 to semptember 2023</small></p>
-        <ul>
-            <li>Development of custom geostatistical and machine learning based solutions for the mining industry using Python together with the geostatistical software Isatis.neo.</li>
-            <li>Training and mentoring in geostatistics and Python.</li>
-            <li>Consulting in geostatistics.</li>
-        </ul>
-        <p class="dif">External consultant - part time</p>
-        <p class="dif"><small>Belo Horizonte, Brazil - Remote</small></p>
-        <p class="dates"><small>from september 2021 to february 2022</small></p>
-        <ul>
-            <li>Development of custom geostatistical and machine learning based solutions for the mining industry using Python together with the geostatistical software Isatis.neo.</li>
-        </ul>
-        <br>
+        <div class="card">
+            <div class="card-header"><span class="company">Geovariances</span><span class="date">from february 2022 to september 2023</span></div>
+            <span class="role">Mineral resources consultant</span>
+            <p class="loc">Belo Horizonte, Brazil - Remote</p>
+            <ul>
+                <li>Development of custom geostatistical and machine learning based solutions for the mining industry using Python together with the geostatistical software Isatis.neo.</li>
+                <li>Training and mentoring in geostatistics and Python.</li>
+                <li>Consulting in geostatistics.</li>
+            </ul>
+            <div class="sub-role">
+                <div class="card-header"><span class="role">External consultant - part time</span><span class="date">from september 2021 to february 2022</span></div>
+                <p class="loc">Belo Horizonte, Brazil - Remote</p>
+                <ul>
+                    <li>Development of custom geostatistical and machine learning based solutions for the mining industry using Python together with the geostatistical software Isatis.neo.</li>
+                </ul>
+            </div>
+        </div>
 
-        <h2>Environment and Infrastructure State Secretary of the State of Rio Grande do Sul </h2>
-        <p class="dif">Mining engineer</p>
-        <p class="dif"><small>Porto Alegre, Brazil - Presential</small></p>
-        <p class="dates"><small>from november 2019 to february 2022</small></p>
-        <ul>
-            <li>Water resources management for mining and energy projects (hydric and thermoelectric).</li>
-	        <li>Planning and execution of public policies and production of reports and diagnoses with the objective of promoting the mining industry in the state of Rio Grande do Sul.</li>
-        </ul>
-        <br>
+        <div class="card">
+            <div class="card-header"><span class="company">Environment and Infrastructure State Secretary - RS</span><span class="date">from november 2019 to february 2022</span></div>
+            <span class="role">Mining engineer</span>
+            <p class="loc">Porto Alegre, Brazil - Presential</p>
+            <ul>
+                <li>Water resources management for mining and energy projects (hydric and thermoelectric).</li>
+                <li>Planning and execution of public policies and production of reports and diagnoses with the objective of promoting the mining industry in the state of Rio Grande do Sul.</li>
+            </ul>
+        </div>
 
-		<h2>Advanced Resources and Risk Technology – AR2Tech</h2>
-        <p class="dif">Geostatistician - part time</p>
-        <p class="dif"><small>Denver, USA - Remote</small></p>
-        <p class="dates"><small>from december 2018 to june 2020</small></p>
-        <ul>
-            <li>Production of ar2gas geostatistical software documentation.</li>
-	        <li>Development of scripts and widgets for the geostatistical software ar2gas.</li>
-	        <li>Development of custom geostatistical and machine learning based workflows using Python together with the geostatistical software ar2gas for the mining and oil industry.</li>
-        </ul>
-        <br>
+        <div class="card">
+            <div class="card-header"><span class="company">Advanced Resources and Risk Technology – AR2Tech</span><span class="date">from december 2018 to june 2020</span></div>
+            <span class="role">Geostatistician - part time</span>
+            <p class="loc">Denver, USA - Remote</p>
+            <ul>
+                <li>Production of ar2gas geostatistical software documentation.</li>
+                <li>Development of scripts and widgets for the geostatistical software ar2gas.</li>
+                <li>Development of custom geostatistical and machine learning based workflows using Python together with the geostatistical software ar2gas for the mining and oil industry.</li>
+            </ul>
+        </div>
 
-		<h2>Mineral Exploration and Mine Planning Laboratory – LPM/UFRGS</h2>
-        <p class="dif">Researcher</p>
-        <p class="dif"><small>Porto Alegre, Brazil - Presential</small></p>
-        <p class="dates"><small>from march 2015 to november 2019</small></p>
-        <ul>
-		    <li>Research in implicit geologic modeling, uncertainty assessment in geological models, grades estimation and geologic modeling using neural networks and clustering algorithms applied to defining geostatistical domains.</li>
-         	<li>Teaching assistant of the geostatistics and machine learning classes of the Graduate Program in Mining, Metallurgical and Materials Engineering at UFRGS.</li>
-		    <li>Professor of the Python Applied to Geostatistics class of the Graduate Program in Mining, Metallurgical and Materials Engineering at UFRGS.</li>
-		    <li>Taught Python and geostatistics courses in company.</li>
-        </ul>
-        <br>
+        <div class="card">
+            <div class="card-header"><span class="company">Mineral Exploration and Mine Planning Laboratory – LPM/UFRGS</span><span class="date">from march 2015 to november 2019</span></div>
+            <span class="role">Researcher</span>
+            <p class="loc">Porto Alegre, Brazil - Presential</p>
+            <ul>
+                <li>Research in implicit geologic modeling, uncertainty assessment in geological models, grades estimation and geologic modeling using neural networks and clustering algorithms applied to defining geostatistical domains;</li>
+                <li>Teaching assistant of the geostatistics and machine learning classes of the Graduate Program in Mining, Metallurgical and Materials Engineering at UFRGS;</li>
+                <li>Professor of the Python Applied to Geostatistics class of the Graduate Program in Mining, Metallurgical and Materials Engineering at UFRGS;</li>
+                <li>Taught Python and geostatistics courses in company.</li>
+            </ul>
+        </div>
+    </section>
 
-    <h1>Education:</h1>
-		<h2>Federal University of Rio Grande do Sul – UFRGS</h2>
-		<p class="dif">Doctor's degree in Geostatistics</p>
-		<p class="dates"><small>Conclusion: july 2021</small></p>
-		<p><small><a href="https://www.lume.ufrgs.br/handle/10183/231585">Thesis: Geologic modeling and uncertainty assess using signed distances functions</a></small></p>
-		<br>
+    <section id="projects">
+        <h2>Featured Projects</h2>
+        <div class="card">
+            <div class="card-header"><span class="company">LogNow!</span></div>
+            <p>An Android app to log drill holes and upload data to a server, streamlining field data collection for geological teams. <a href="https://github.com/WBN-Geo/WBN_DDH_log" target="_blank">[View on GitHub]</a></p>
+        </div>
+        <div class="card">
+            <div class="card-header"><span class="company">Simplified dam-break flood modeling</span></div>
+            <p>Implementation in Python for the simplified methodology to define the flood spot in the event of a dam failure. <a href="https://github.com/robertorolo/mancha_de_inundacao" target="_blank">[View on GitHub]</a></p>
+        </div>
+    </section>
 
-		<h2>Federal University of Rio Grande do Sul – UFRGS</h2>
-		<p class="dif">Master's degree in Geostatistics</p>
-		<p class="dates"><small>Conclusion: january 2017</small></p>
-		<p><small><a href="https://www.lume.ufrgs.br/handle/10183/163406">Dissertation: Implicit geologic modeling using signed distances functions</a></small></p>
-		<br>
+    <section id="education">
+        <h2>Education</h2>
+        <div class="card">
+            <span class="edu-inst">Federal University of Rio Grande do Sul – UFRGS</span>
+            <span class="role">Doctor's degree in Geostatistics</span>
+            <p class="loc">Conclusion: july 2021</p>
+            <p>Thesis: <a href="https://www.lume.ufrgs.br/handle/10183/231585" target="_blank">Geologic modeling and uncertainty assess using signed distances functions</a></p>
+        </div>
+        <div class="card">
+            <span class="edu-inst">Federal University of Rio Grande do Sul – UFRGS</span>
+            <span class="role">Master's degree in Geostatistics</span>
+            <p class="loc">Conclusion: january 2017</p>
+            <p>Dissertation: <a href="https://www.lume.ufrgs.br/handle/10183/163406" target="_blank">Implicit geologic modeling using signed distances functions</a></p>
+        </div>
+        <div class="card">
+            <span class="edu-inst">Federal University of Ouro Preto – UFOP</span>
+            <span class="role">Bachelor's degree in Mining Engineering</span>
+            <p class="loc">Conclusion: september 2013</p>
+            <p>Undergraduate thesis: Study of technical aspects essential to the evaluation of mineral reserves</p>
+        </div>
+    </section>
 
-		<h2>Federal University of Ouro Preto – UFOP</h2>
-		<p class="dif">Bachelor's degree in Mining Engineering</p>
-		<p class="dates"><small>Conclusion: september 2013</small></p>
-		<p><small>Undergraduate thesis: Study of technical aspects essential to the evaluation of mineral reserves</small></p>
-		<br>
+    <section id="interests">
+        <h2>Interests</h2>
+        <div class="pill-container">
+            <span class="pill">Linux (Arch)</span><span class="pill">FOSS</span><span class="pill">Python</span>
+            <span class="pill">Machine Learning</span><span class="pill">UX Design</span><span class="pill">LaTeX</span>
+            <span class="pill">ThinkPads</span><span class="pill">Aviation</span><span class="pill">Flight Simulation</span>
+            <span class="pill">Board Games</span><span class="pill">Science</span><span class="pill">Mechanical Keyboards</span>
+        </div>
+    </section>
 
-    <h1>Certificates:</h1>
-        <a href="https://www.credly.com/badges/966f0027-eb95-4c72-b7fc-c9da7ec29df6/linked_in_profile"><b>Professional Certificate JORC Code Reporting</b></a>
-        <p class="dif">The Australasian Institute of Mining & Metallurgy (AusIMM)</p>
-        <p class="dates"><small>Conclusion: May 2025</small></p>
-        <br>
+    <section id="media">
+        <h2>Talks & Presentations</h2>
+        <p>Machine learning webinar - Geovariances (Portuguese)</p>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/vyDU_syxK4I" allowfullscreen></iframe>
+        </div>
 
-	<h1>Selected project:</h1>
-        <a href="https://github.com/WBN-Geo/WBN_DDH_log"><b>LogNow!</b></a>
-        <p>An Android app to log drill holes and upload it to a server.</p>
-        <br>
+        <p>Implicit geological modeling with signed distance functions - Webinar (English)</p>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/Oq8sPK_o5vE" allowfullscreen></iframe>
+        </div>
+    </section>
 
-		<a href="https://github.com/robertorolo/pyLPM"><b>PyLPM</b></a>
-		<p>Python library for teaching geostatistics. All graphs and maps are interactive, including variogram modeling.</p>
-		<br>
-
-		<a href="https://github.com/robertorolo/mancha_de_inundacao"><b>Simplified dam-break flood modeling</b></a>
-		<p>Implementation in Python for the simplified methodology to define the flood spot in the event of a dam failure.</p>
-		<br>
-
-		<a href="https://github.com/robertorolo/LPM-Geomod_Suite"><b>LPM-Geomod_Suite</b></a>
-		<p>Python plugin suite for implicit geological modeling and uncertainty assess for the geostatistical software SGeMS/AR2GeMS.</p>
-		<br>
-
-		<a href="https://github.com/robertorolo/Mapas-minera-RS"><b>Minera - RS Maps</b></a>
-		<p>Diagnosis of mining in State of Rio Grande do Sul (Brazil) on maps.</p>
-		<br>
-
-		<a href="https://github.com/robertorolo/balanco_hidrico"><b>Hydric balance</b></a>
-		<p>An alternative to the SIOUT - RS hydric balance tool (www.siout.rs.gov.br).</p>
-		<br>
-	
-		<a href="https://github.com/robertorolo/cluster_analysis_dashboard"><b>Clustering analysis dashboard</b></a>
-		<p>An interactive dashboard for clustering analysis.</p>
-		<br>
-
-    <h1>Skills:</h1>
-    	<h2>Languages</h2>
-		<ul>
-	    	<li><b>English:</b> <span class="dates">C1 Advanced</span> TOEFL iBT</li>
-            <li><b>French:</b> <span class="dates">B2 Advanced</span> DELF</li>
-            <li><b>Spanish:</b> <span class="dates">Basic</span> Passed UFRGS proficiency exam</li>
-            <li><b>Portuguese:</b> <span class="dates">Native</span></li>
-        </ul>
-
-	<h2>Programming</h2>
-        <p><b>Python • Bash • Kotlin</b></p>
-        <br>
-
-    <h1>Journal reviewer:</h1>
-		<ul>
-            <li><a href="https://www.sciencedirect.com/journal/journal-of-sustainable-mining">Journal of Sustainable Mining</a></li>
-	    	<li><a href="https://www.springer.com/journal/11053">Natural Resources Research</a></li>
-            <li><a href="https://www.scielo.br/j/remi/">REM - International Engineering Journal</a></li>
-        </ul>
-        <br>
-
-    <h1>Publications:</h1>
-        <h2>Journals:</h2>
-            <a href="https://www.scielo.br/j/rbrh/a/SB6Qgw8JJ89jRzGTzRFshzh/?lang=en"><b>A Python implementation for the simplified dam-break flood modeling</b></a>
-            <p>Brazilian Journal of Water Resources - 2022</p>
-            <br>
-	
-	        <a href="https://periodicos.ifpb.edu.br/index.php/principia/article/view/4925"><b>Comparação de métodos de interpolação espacial para construção de modelos blocos geomecânicos a partir de descrição geomecânica de testemunhos de sondagem</b></a>
-            <p>Revista Principia - 2021</p>
-            <br>
-	    
-	        <a href="https://www.scielo.br/j/remi/a/NJb7CyrcS3W7SQrM6JbWF6z/?lang=en"><b>Previous classification of rock mass surrounding underground excavations and rock support design using block models</b></a>
-            <p>REM - International Engineering Journal - 2021</p>
-            <br>
-	
-	        <a href="https://www2.ifrn.edu.br/ojs/index.php/HOLOS/article/view/10233"><b>Classificação Geomecânica Prévia do Maciço Rochoso do Entorno de Escavações Subterrâneas Usando Modelos de Blocos Estimados por Krigagem dos Indicadores. Estudo de Caso: Mineração Fazenda Brasileiro – Bahia/brasil</b></a>
-            <p>HOLOS - 2021</p>
-            <br>
-
-            <a href="https://www.tandfonline.com/doi/full/10.1080/25726838.2021.1889295"><b>Boundary Simulation – A Hierarchical Approach for Multiple Categories</b></a>
-            <p>Applied Earth Science - 2021</p>
-            <br>
-
-            <a href="https://www.scielo.br/j/remi/a/L3vMZxBqGrtf5x4qtB74dxL/?lang=en"><b>Assessing Geologic Model Uncertainty – A Case Study Comparing Methods</b></a>
-            <p>REM - International Engineering Journal - 2019</p>
-            <br>
-
-            <a href="https://link.springer.com/article/10.1007/s11053-018-9399-y"><b>Using Mahalanobis Distance to Detect and Remove Outliers in Experimental Covariograms</b></a>
-            <p>Natural Resources Research - 2018</p>
-            <br>
-
-            <a href="https://www.scielo.br/j/remi/a/VNMsbbkfDjc5hwKLcgCfXsm/?lang=en"><b>Signed Distance Function Implicit Geologic Modeling</b></a>
-            <p>REM - International Engineering Journal - 2017</p>
-            <br>
-
-        <h2>Events:</h2>
-            <p><b>Imputação de dados geoestatísticos em cenários MNAR multivariados: avaliação dos métodos por vizinho mais próximo, regressão linear e simulação com modelo de mistura Gaussiana</b></p>
-            <p>Congresso Brasileiro de Minas a Céu Aberto e Minas Subterrâneas - 2025</p>
-            <br>
-
-            <p><b>Coherent Modelling of Mineral Grades and Zones by Coupling Cokriging and Support Vector Machine</b></p>
-            <p>12th International Conference on Mining, Material, and Metallurgical Engineering - 2025</p>
-            <br>
-
-            <p><b>An integrated approach to drillhole spacing studies in mining projects: a case study in a Brazilian iron ore deposit</b></p>
-            <p>Geostats - 2024</p>
-            <br>
-
-            <p><b>Machine Learning Driven Domain Modeling for Stratigraphic Deposits</b></p>
-            <p>Application of Computers and Operations Research in The Mineral Industry - 2023</p>
-            <br>
-
-            <p><b>Integrating Machine Learning with Geostatistics for Grade Control Models</b></p>
-            <p>Application of Computers and Operations Research in The Mineral Industry - 2023</p>
-            <br>
-
-            <p><b>Use of Non-linear Estimates and Local Anisotropy in Mineral Resource Modeling</b></p>
-            <p>Application of Computers and Operations Research in The Mineral Industry - 2023</p>
-            <br>
-
-            <p><b>Defining geometalurgical domains in a phosphate mine using machine learning</b></p>
-            <p>International Conference on Mineral Processing and Geometallurgy - 2022</p>
-            <br>
-
-            <p><b>PyLPM - Uma Biblioteca Geoestatística de Código Aberto em Python</b></p>
-            <p>Congresso Brasileiro de Minas a Céu Aberto e Minas Subterrâneas - 2021</p>
-            <br>
-
-            <p><b>Utilização de Técnicas de Agrupamento na Definição de Estacionariedade</b></p>
-            <p>Congresso Brasileiro de Minas a Céu Aberto e Minas Subterrâneas - 2018</p>
-            <br>
-
-            <p><b>Modelagem Geológica Implícita Automática Via Tabela de Covariância com Funções Distância Assinaladas</b></p>
-            <p>Congresso Brasileiro de Minas a Céu Aberto e Minas Subterrâneas - 2018</p>
-            <br>
-
-            <p><b>Utilização da Distância de Mahalanobis para Detecção e Remoção de Valores Extremos Multivariados em Funções de Continuidade Espaciais Experimentais - Um Estudo de Caso em Depósitos de Ouro</b></p>
-            <p>Congresso Brasileiro de Minas a Céu Aberto e Minas Subterrâneas - 2018</p>
-            <br>
-
-            <p><b>Incerteza Associada ao Modelamento Implícito e Hierárquico</b></p>
-            <p>Congresso Brasileiro de Minas a Céu Aberto e Minas Subterrâneas - 2018</p>
-            <br>
-
-            <p><b>Modelagem Geológica Implícita com Funções Distância Assinaladas via Tabela De Covariância</b></p>
-            <p>Congresso Brasileiro de Geologia - 2018</p>
-            <br>
-
-            <p><b>Assesing Implicit Geologic Model Uncertainty Using Signed Distances</b></p>
-            <p>Application of Computers and Operations Research in The Mineral Industry - 2017</p>
-            <br>
-
-            <p><b>Determinação Implícita da Espessura de Camadas de Carvão com Funções Distância Assinaladas</b></p>
-            <p>V Congresso Brasileiro de Carvão Mineral - 2017</p>
-            <br>
-
-    <h1>Videos:</h1>
-
-        <h2>Machine Learning applied to geosciences and mining - Webinar</h2>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/vyDU_syxK4I" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        <br>
-    
-        <h2>Use of machine learning to optimize ore control models in mining operations - Life of mine symposium 2023</h2>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/9ru7Ma9tsj4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        <br>
-
-        <h2>Defining geometalurgical domains in a phosphate mine using machine learning - Geomet 2022</h2>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/Oq8sPK_o5vE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        <br>
-
-        <h2>Geologic modeling and uncertainty assess using signed distances functions - Thesis defense</h2>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/hwrDVkiTIFI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        <br>
-
-        <h2>Radial basis functions neural networks for ore grades estimation - II LPM workshop</h2>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/55jGTzePMpk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        <br>
-
-    <h1>Interests:</h1>
-        <p><b>Linux • Arch • Android • Window Managers • LaTeX • programming • UX Design • Metalcore • JRPG • Aviation • Invesments • ThinkPads • Board Games • Beer • Science • Mechanical keyboards • Crypto coins • Graphical design • 3D modeling • HxCx • FOSS • Barbecue • Magic the Gathering • Flight simulation • Dashboards • Web scraping</b></p>
+</main>
 </body>
+</html>
