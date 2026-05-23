@@ -1,0 +1,291 @@
+
+<!-- START OF INTERACTIVE GEOMODELING SANDBOX WIDGET -->
+<section id="geostats-sandbox" style="margin-top: 40px; padding: 20px 0; border-top: 2px solid var(--nord-sub, #4C566A);">
+    <h2 style="color: var(--nord-blue, #81A1C1); margin-bottom: 20px; font-size: 1.5rem;">Interactive Geomodeling Sandbox</h2>
+    
+    <div class="sandbox-container" style="background: var(--nord-card, #3B4252); border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); font-family: 'Inter', sans-serif;">
+        
+        <div style="display: table; width: 100%; table-layout: fixed;">
+            
+            <!-- LEFT COLUMN: CONTROLS & VARIOGRAM -->
+            <div style="display: table-cell; width: 50%; vertical-align: top; padding-right: 15px; box-sizing: border-box;">
+                <div style="background: var(--nord-dark, #2E3440); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--nord-text, #D8DEE9); font-size: 0.9rem;">
+                        Nugget Effect (C₀): <span id="val-nugget" style="float: right; color: var(--nord-green, #A3BE8C); font-family: monospace;">0.10</span>
+                    </label>
+                    <input type="range" id="input-nugget" min="0" max="0.95" step="0.05" value="0.10" style="width: 100%; margin-bottom: 15px; accent-color: var(--nord-blue, #81A1C1);">
+
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--nord-text, #D8DEE9); font-size: 0.9rem;">
+                        Range (a): <span id="val-range" style="float: right; color: var(--nord-green, #A3BE8C); font-family: monospace;">80</span> m
+                    </label>
+                    <input type="range" id="input-range" min="15" max="250" step="5" value="80" style="width: 100%; accent-color: var(--nord-blue, #81A1C1);">
+                </div>
+
+                <h3 style="color: var(--nord-blue, #81A1C1); margin-bottom: 10px; font-size: 1rem; text-align: center;">Spherical Variogram Model γ(h)</h3>
+                <canvas id="canvas-variogram" width="380" height="260" style="background: var(--nord-dark, #2E3440); border-radius: 6px; display: block; margin: 0 auto;"></canvas>
+            </div>
+
+            <!-- RIGHT COLUMN: KRIGING MAP -->
+            <div style="display: table-cell; width: 50%; vertical-align: top; padding-left: 15px; box-sizing: border-box;">
+                <h3 style="color: var(--nord-blue, #81A1C1); margin-bottom: 10px; font-size: 1rem; text-align: center;">Walker Lake Grid (260m x 300m)</h3>
+                <canvas id="canvas-kriging" width="312" height="360" style="background: var(--nord-dark, #2E3440); border-radius: 6px; display: block; margin: 0 auto;"></canvas>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                    <button id="btn-toggle-view" style="background: var(--nord-blue, #81A1C1); color: var(--nord-dark, #2E3440); border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s;">
+                        Switch to: Kriging Variance
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script>
+(function() {
+    const dataset = [{"id": 1, "x": 11.0, "y": 8.0, "val": 0.0}, {"id": 2, "x": 8.0, "y": 30.0, "val": 0.0}, {"id": 3, "x": 9.0, "y": 48.0, "val": 224.4}, {"id": 4, "x": 8.0, "y": 69.0, "val": 434.4}, {"id": 5, "x": 9.0, "y": 90.0, "val": 412.1}, {"id": 6, "x": 10.0, "y": 110.0, "val": 587.2}, {"id": 7, "x": 9.0, "y": 129.0, "val": 192.3}, {"id": 8, "x": 11.0, "y": 150.0, "val": 31.3}, {"id": 9, "x": 10.0, "y": 170.0, "val": 388.5}, {"id": 10, "x": 8.0, "y": 188.0, "val": 174.6}, {"id": 11, "x": 9.0, "y": 209.0, "val": 187.8}, {"id": 12, "x": 10.0, "y": 231.0, "val": 82.1}, {"id": 13, "x": 11.0, "y": 250.0, "val": 81.1}, {"id": 14, "x": 10.0, "y": 269.0, "val": 124.3}, {"id": 15, "x": 8.0, "y": 288.0, "val": 188.0}, {"id": 16, "x": 31.0, "y": 11.0, "val": 28.7}, {"id": 17, "x": 29.0, "y": 29.0, "val": 78.1}, {"id": 18, "x": 28.0, "y": 51.0, "val": 292.1}, {"id": 19, "x": 31.0, "y": 68.0, "val": 895.2}, {"id": 20, "x": 28.0, "y": 88.0, "val": 702.6}, {"id": 21, "x": 30.0, "y": 110.0, "val": 490.3}, {"id": 22, "x": 28.0, "y": 130.0, "val": 136.1}, {"id": 23, "x": 28.0, "y": 150.0, "val": 335.0}, {"id": 24, "x": 30.0, "y": 171.0, "val": 277.0}, {"id": 25, "x": 28.0, "y": 190.0, "val": 206.1}, {"id": 26, "x": 31.0, "y": 209.0, "val": 24.5}, {"id": 27, "x": 28.0, "y": 229.0, "val": 198.1}, {"id": 28, "x": 30.0, "y": 250.0, "val": 60.3}, {"id": 29, "x": 31.0, "y": 269.0, "val": 312.6}, {"id": 30, "x": 31.0, "y": 289.0, "val": 240.9}, {"id": 31, "x": 49.0, "y": 11.0, "val": 653.3}, {"id": 32, "x": 49.0, "y": 29.0, "val": 96.4}, {"id": 33, "x": 51.0, "y": 48.0, "val": 105.0}, {"id": 34, "x": 49.0, "y": 68.0, "val": 37.8}, {"id": 35, "x": 50.0, "y": 88.0, "val": 820.8}, {"id": 36, "x": 51.0, "y": 109.0, "val": 450.7}, {"id": 37, "x": 48.0, "y": 129.0, "val": 190.4}, {"id": 38, "x": 49.0, "y": 151.0, "val": 773.3}, {"id": 39, "x": 51.0, "y": 168.0, "val": 971.9}, {"id": 40, "x": 48.0, "y": 190.0, "val": 762.4}, {"id": 41, "x": 50.0, "y": 211.0, "val": 968.3}, {"id": 42, "x": 49.0, "y": 231.0, "val": 394.7}, {"id": 43, "x": 51.0, "y": 250.0, "val": 343.0}, {"id": 44, "x": 50.0, "y": 268.0, "val": 863.8}, {"id": 45, "x": 51.0, "y": 290.0, "val": 159.6}, {"id": 46, "x": 71.0, "y": 9.0, "val": 445.8}, {"id": 47, "x": 71.0, "y": 29.0, "val": 673.3}, {"id": 48, "x": 70.0, "y": 51.0, "val": 252.6}, {"id": 49, "x": 68.0, "y": 70.0, "val": 537.5}, {"id": 50, "x": 69.0, "y": 90.0, "val": 0.0}, {"id": 51, "x": 68.0, "y": 110.0, "val": 329.1}, {"id": 52, "x": 68.0, "y": 128.0, "val": 646.3}, {"id": 53, "x": 69.0, "y": 148.0, "val": 616.2}, {"id": 54, "x": 69.0, "y": 169.0, "val": 761.3}, {"id": 55, "x": 70.0, "y": 191.0, "val": 918.0}, {"id": 56, "x": 69.0, "y": 208.0, "val": 97.4}, {"id": 57, "x": 69.0, "y": 229.0, "val": 0.0}, {"id": 58, "x": 68.0, "y": 250.0, "val": 0.0}, {"id": 59, "x": 71.0, "y": 268.0, "val": 0.0}, {"id": 60, "x": 71.0, "y": 288.0, "val": 2.4}, {"id": 61, "x": 91.0, "y": 11.0, "val": 368.3}, {"id": 62, "x": 91.0, "y": 29.0, "val": 91.6}, {"id": 63, "x": 90.0, "y": 49.0, "val": 654.7}, {"id": 64, "x": 91.0, "y": 68.0, "val": 645.5}, {"id": 65, "x": 91.0, "y": 91.0, "val": 907.2}, {"id": 66, "x": 91.0, "y": 111.0, "val": 826.3}, {"id": 67, "x": 89.0, "y": 130.0, "val": 975.3}, {"id": 68, "x": 88.0, "y": 149.0, "val": 551.1}, {"id": 69, "x": 89.0, "y": 170.0, "val": 155.5}, {"id": 70, "x": 89.0, "y": 188.0, "val": 10.7}, {"id": 71, "x": 90.0, "y": 211.0, "val": 0.0}, {"id": 72, "x": 90.0, "y": 230.0, "val": 0.0}, {"id": 73, "x": 88.0, "y": 249.0, "val": 0.0}, {"id": 74, "x": 88.0, "y": 269.0, "val": 12.1}, {"id": 75, "x": 88.0, "y": 288.0, "val": 62.2}, {"id": 76, "x": 109.0, "y": 11.0, "val": 399.6}, {"id": 77, "x": 111.0, "y": 31.0, "val": 176.6}, {"id": 78, "x": 108.0, "y": 49.0, "val": 402.0}, {"id": 79, "x": 109.0, "y": 68.0, "val": 260.6}, {"id": 80, "x": 108.0, "y": 88.0, "val": 192.0}, {"id": 81, "x": 110.0, "y": 109.0, "val": 237.6}, {"id": 82, "x": 109.0, "y": 129.0, "val": 702.0}, {"id": 83, "x": 110.0, "y": 148.0, "val": 38.5}, {"id": 84, "x": 111.0, "y": 169.0, "val": 22.1}, {"id": 85, "x": 111.0, "y": 191.0, "val": 2.7}, {"id": 86, "x": 110.0, "y": 208.0, "val": 17.9}, {"id": 87, "x": 109.0, "y": 230.0, "val": 174.2}, {"id": 88, "x": 109.0, "y": 249.0, "val": 12.9}, {"id": 89, "x": 109.0, "y": 268.0, "val": 187.8}, {"id": 90, "x": 111.0, "y": 291.0, "val": 268.8}, {"id": 91, "x": 130.0, "y": 9.0, "val": 572.5}, {"id": 92, "x": 131.0, "y": 31.0, "val": 29.1}, {"id": 93, "x": 130.0, "y": 48.0, "val": 75.2}, {"id": 94, "x": 128.0, "y": 70.0, "val": 399.9}, {"id": 95, "x": 129.0, "y": 90.0, "val": 243.1}, {"id": 96, "x": 131.0, "y": 109.0, "val": 0.0}, {"id": 97, "x": 129.0, "y": 128.0, "val": 244.7}, {"id": 98, "x": 131.0, "y": 148.0, "val": 185.2}, {"id": 99, "x": 131.0, "y": 169.0, "val": 26.0}, {"id": 100, "x": 129.0, "y": 191.0, "val": 0.0}, {"id": 101, "x": 128.0, "y": 209.0, "val": 100.3}, {"id": 102, "x": 130.0, "y": 231.0, "val": 530.3}, {"id": 103, "x": 131.0, "y": 248.0, "val": 107.4}, {"id": 104, "x": 128.0, "y": 269.0, "val": 159.3}, {"id": 105, "x": 131.0, "y": 288.0, "val": 70.7}, {"id": 106, "x": 148.0, "y": 8.0, "val": 260.2}, {"id": 107, "x": 149.0, "y": 29.0, "val": 326.0}, {"id": 108, "x": 150.0, "y": 49.0, "val": 332.7}, {"id": 109, "x": 151.0, "y": 69.0, "val": 531.3}, {"id": 110, "x": 150.0, "y": 89.0, "val": 547.2}, {"id": 111, "x": 150.0, "y": 109.0, "val": 482.7}, {"id": 112, "x": 150.0, "y": 129.0, "val": 84.1}, {"id": 113, "x": 150.0, "y": 151.0, "val": 4.7}, {"id": 114, "x": 149.0, "y": 169.0, "val": 180.6}, {"id": 115, "x": 151.0, "y": 190.0, "val": 0.0}, {"id": 116, "x": 148.0, "y": 208.0, "val": 342.4}, {"id": 117, "x": 150.0, "y": 228.0, "val": 602.3}, {"id": 118, "x": 149.0, "y": 251.0, "val": 209.1}, {"id": 119, "x": 149.0, "y": 271.0, "val": 79.4}, {"id": 120, "x": 148.0, "y": 291.0, "val": 104.1}, {"id": 121, "x": 168.0, "y": 8.0, "val": 446.0}, {"id": 122, "x": 171.0, "y": 29.0, "val": 189.9}, {"id": 123, "x": 169.0, "y": 49.0, "val": 280.4}, {"id": 124, "x": 168.0, "y": 69.0, "val": 0.0}, {"id": 125, "x": 168.0, "y": 91.0, "val": 499.3}, {"id": 126, "x": 171.0, "y": 109.0, "val": 457.3}, {"id": 127, "x": 168.0, "y": 131.0, "val": 341.2}, {"id": 128, "x": 171.0, "y": 150.0, "val": 0.0}, {"id": 129, "x": 171.0, "y": 171.0, "val": 208.3}, {"id": 130, "x": 169.0, "y": 191.0, "val": 99.7}, {"id": 131, "x": 170.0, "y": 210.0, "val": 636.6}, {"id": 132, "x": 170.0, "y": 230.0, "val": 173.1}, {"id": 133, "x": 169.0, "y": 249.0, "val": 17.0}, {"id": 134, "x": 168.0, "y": 271.0, "val": 283.1}, {"id": 135, "x": 168.0, "y": 290.0, "val": 30.9}, {"id": 136, "x": 190.0, "y": 11.0, "val": 348.5}, {"id": 137, "x": 191.0, "y": 28.0, "val": 222.4}, {"id": 138, "x": 191.0, "y": 48.0, "val": 59.1}, {"id": 139, "x": 190.0, "y": 69.0, "val": 0.0}, {"id": 140, "x": 190.0, "y": 89.0, "val": 326.0}, {"id": 141, "x": 188.0, "y": 111.0, "val": 325.1}, {"id": 142, "x": 191.0, "y": 129.0, "val": 114.7}, {"id": 143, "x": 189.0, "y": 149.0, "val": 481.6}, {"id": 144, "x": 190.0, "y": 169.0, "val": 324.1}, {"id": 145, "x": 190.0, "y": 189.0, "val": 10.9}, {"id": 146, "x": 188.0, "y": 210.0, "val": 332.9}, {"id": 147, "x": 191.0, "y": 231.0, "val": 184.4}, {"id": 148, "x": 190.0, "y": 248.0, "val": 146.6}, {"id": 149, "x": 189.0, "y": 270.0, "val": 92.0}, {"id": 150, "x": 189.0, "y": 290.0, "val": 2.5}, {"id": 151, "x": 211.0, "y": 11.0, "val": 358.1}, {"id": 152, "x": 209.0, "y": 30.0, "val": 473.3}, {"id": 153, "x": 211.0, "y": 49.0, "val": 308.8}, {"id": 154, "x": 210.0, "y": 70.0, "val": 406.8}, {"id": 155, "x": 209.0, "y": 90.0, "val": 812.1}, {"id": 156, "x": 210.0, "y": 111.0, "val": 339.7}, {"id": 157, "x": 211.0, "y": 130.0, "val": 223.9}, {"id": 158, "x": 208.0, "y": 151.0, "val": 673.5}, {"id": 159, "x": 209.0, "y": 168.0, "val": 141.0}, {"id": 160, "x": 208.0, "y": 191.0, "val": 61.8}, {"id": 161, "x": 210.0, "y": 211.0, "val": 258.3}, {"id": 162, "x": 211.0, "y": 228.0, "val": 590.3}, {"id": 163, "x": 211.0, "y": 250.0, "val": 166.9}, {"id": 164, "x": 208.0, "y": 268.0, "val": 125.2}, {"id": 165, "x": 208.0, "y": 289.0, "val": 29.3}, {"id": 166, "x": 231.0, "y": 10.0, "val": 617.6}, {"id": 167, "x": 231.0, "y": 28.0, "val": 425.9}, {"id": 168, "x": 230.0, "y": 50.0, "val": 295.7}, {"id": 169, "x": 230.0, "y": 71.0, "val": 224.9}, {"id": 170, "x": 229.0, "y": 91.0, "val": 31.7}, {"id": 171, "x": 229.0, "y": 110.0, "val": 377.4}, {"id": 172, "x": 230.0, "y": 131.0, "val": 333.3}, {"id": 173, "x": 228.0, "y": 148.0, "val": 351.0}, {"id": 174, "x": 229.0, "y": 169.0, "val": 0.0}, {"id": 175, "x": 231.0, "y": 191.0, "val": 137.6}, {"id": 176, "x": 231.0, "y": 208.0, "val": 451.2}, {"id": 177, "x": 229.0, "y": 228.0, "val": 639.5}, {"id": 178, "x": 231.0, "y": 249.0, "val": 119.9}, {"id": 179, "x": 231.0, "y": 268.0, "val": 27.2}, {"id": 180, "x": 230.0, "y": 291.0, "val": 2.1}, {"id": 181, "x": 249.0, "y": 9.0, "val": 167.7}, {"id": 182, "x": 250.0, "y": 30.0, "val": 147.8}, {"id": 183, "x": 249.0, "y": 48.0, "val": 442.7}, {"id": 184, "x": 251.0, "y": 69.0, "val": 487.7}, {"id": 185, "x": 251.0, "y": 91.0, "val": 0.0}, {"id": 186, "x": 248.0, "y": 109.0, "val": 28.2}, {"id": 187, "x": 249.0, "y": 130.0, "val": 0.0}, {"id": 188, "x": 248.0, "y": 150.0, "val": 18.3}, {"id": 189, "x": 250.0, "y": 169.0, "val": 266.3}, {"id": 190, "x": 250.0, "y": 190.0, "val": 502.3}, {"id": 191, "x": 251.0, "y": 208.0, "val": 0.0}, {"id": 192, "x": 251.0, "y": 229.0, "val": 240.9}, {"id": 193, "x": 249.0, "y": 251.0, "val": 234.4}, {"id": 194, "x": 248.0, "y": 270.0, "val": 22.4}, {"id": 195, "x": 250.0, "y": 291.0, "val": 45.6}, {"id": 196, "x": 40.0, "y": 71.0, "val": 76.2}, {"id": 197, "x": 21.0, "y": 69.0, "val": 284.3}, {"id": 198, "x": 28.0, "y": 80.0, "val": 606.8}, {"id": 199, "x": 29.0, "y": 59.0, "val": 772.7}, {"id": 200, "x": 41.0, "y": 81.0, "val": 269.5}, {"id": 201, "x": 18.0, "y": 80.0, "val": 1036.7}, {"id": 202, "x": 39.0, "y": 60.0, "val": 238.6}, {"id": 203, "x": 18.0, "y": 60.0, "val": 519.4}, {"id": 204, "x": 41.0, "y": 90.0, "val": 414.9}, {"id": 205, "x": 21.0, "y": 90.0, "val": 601.4}, {"id": 206, "x": 31.0, "y": 101.0, "val": 579.2}, {"id": 207, "x": 41.0, "y": 100.0, "val": 601.4}, {"id": 208, "x": 21.0, "y": 100.0, "val": 594.6}, {"id": 209, "x": 60.0, "y": 8.0, "val": 550.1}, {"id": 210, "x": 40.0, "y": 11.0, "val": 99.4}, {"id": 211, "x": 51.0, "y": 18.0, "val": 233.6}, {"id": 212, "x": 59.0, "y": 20.0, "val": 14.4}, {"id": 213, "x": 41.0, "y": 21.0, "val": 115.9}, {"id": 214, "x": 59.0, "y": 90.0, "val": 506.2}, {"id": 215, "x": 51.0, "y": 101.0, "val": 502.4}, {"id": 216, "x": 50.0, "y": 81.0, "val": 608.0}, {"id": 217, "x": 59.0, "y": 101.0, "val": 363.9}, {"id": 218, "x": 60.0, "y": 81.0, "val": 385.6}, {"id": 219, "x": 60.0, "y": 151.0, "val": 1521.1}, {"id": 220, "x": 38.0, "y": 148.0, "val": 340.9}, {"id": 221, "x": 50.0, "y": 160.0, "val": 879.1}, {"id": 222, "x": 50.0, "y": 138.0, "val": 413.4}, {"id": 223, "x": 61.0, "y": 158.0, "val": 868.9}, {"id": 224, "x": 39.0, "y": 160.0, "val": 657.4}, {"id": 225, "x": 61.0, "y": 139.0, "val": 477.0}, {"id": 226, "x": 38.0, "y": 140.0, "val": 268.5}, {"id": 227, "x": 61.0, "y": 170.0, "val": 806.4}, {"id": 228, "x": 39.0, "y": 170.0, "val": 914.4}, {"id": 229, "x": 49.0, "y": 179.0, "val": 811.5}, {"id": 230, "x": 58.0, "y": 179.0, "val": 1113.6}, {"id": 231, "x": 39.0, "y": 181.0, "val": 1008.0}, {"id": 232, "x": 60.0, "y": 191.0, "val": 1528.1}, {"id": 233, "x": 40.0, "y": 190.0, "val": 970.9}, {"id": 234, "x": 51.0, "y": 198.0, "val": 1109.0}, {"id": 235, "x": 60.0, "y": 198.0, "val": 1203.9}, {"id": 236, "x": 40.0, "y": 200.0, "val": 641.3}, {"id": 237, "x": 58.0, "y": 208.0, "val": 720.6}, {"id": 238, "x": 38.0, "y": 209.0, "val": 665.3}, {"id": 239, "x": 50.0, "y": 221.0, "val": 543.3}, {"id": 240, "x": 61.0, "y": 220.0, "val": 101.1}, {"id": 241, "x": 39.0, "y": 221.0, "val": 615.9}, {"id": 242, "x": 59.0, "y": 268.0, "val": 543.1}, {"id": 243, "x": 41.0, "y": 271.0, "val": 868.8}, {"id": 244, "x": 49.0, "y": 278.0, "val": 583.0}, {"id": 245, "x": 51.0, "y": 260.0, "val": 670.7}, {"id": 246, "x": 59.0, "y": 281.0, "val": 148.8}, {"id": 247, "x": 39.0, "y": 279.0, "val": 798.0}, {"id": 248, "x": 59.0, "y": 258.0, "val": 194.9}, {"id": 249, "x": 38.0, "y": 260.0, "val": 635.2}, {"id": 250, "x": 78.0, "y": 28.0, "val": 781.6}, {"id": 251, "x": 60.0, "y": 29.0, "val": 238.6}, {"id": 252, "x": 70.0, "y": 41.0, "val": 472.0}, {"id": 253, "x": 70.0, "y": 21.0, "val": 58.1}, {"id": 254, "x": 78.0, "y": 41.0, "val": 600.3}, {"id": 255, "x": 61.0, "y": 41.0, "val": 64.9}, {"id": 256, "x": 78.0, "y": 20.0, "val": 505.9}, {"id": 257, "x": 80.0, "y": 131.0, "val": 801.6}, {"id": 258, "x": 58.0, "y": 128.0, "val": 158.8}, {"id": 259, "x": 71.0, "y": 140.0, "val": 606.3}, {"id": 260, "x": 70.0, "y": 121.0, "val": 30.7}, {"id": 261, "x": 79.0, "y": 138.0, "val": 730.1}, {"id": 262, "x": 80.0, "y": 119.0, "val": 421.2}, {"id": 263, "x": 61.0, "y": 121.0, "val": 104.8}, {"id": 264, "x": 79.0, "y": 149.0, "val": 44.1}, {"id": 265, "x": 71.0, "y": 160.0, "val": 801.1}, {"id": 266, "x": 78.0, "y": 159.0, "val": 742.0}, {"id": 267, "x": 80.0, "y": 168.0, "val": 689.1}, {"id": 268, "x": 69.0, "y": 181.0, "val": 424.6}, {"id": 269, "x": 79.0, "y": 181.0, "val": 184.3}, {"id": 270, "x": 80.0, "y": 188.0, "val": 245.2}, {"id": 271, "x": 70.0, "y": 198.0, "val": 630.0}, {"id": 272, "x": 81.0, "y": 200.0, "val": 0.0}, {"id": 273, "x": 100.0, "y": 48.0, "val": 48.7}, {"id": 274, "x": 80.0, "y": 49.0, "val": 757.4}, {"id": 275, "x": 90.0, "y": 58.0, "val": 739.8}, {"id": 276, "x": 88.0, "y": 39.0, "val": 520.7}, {"id": 277, "x": 100.0, "y": 60.0, "val": 0.0}, {"id": 278, "x": 80.0, "y": 59.0, "val": 0.0}, {"id": 279, "x": 101.0, "y": 38.0, "val": 730.5}, {"id": 280, "x": 101.0, "y": 68.0, "val": 383.1}, {"id": 281, "x": 79.0, "y": 70.0, "val": 508.8}, {"id": 282, "x": 90.0, "y": 79.0, "val": 573.3}, {"id": 283, "x": 100.0, "y": 78.0, "val": 372.4}, {"id": 284, "x": 81.0, "y": 81.0, "val": 585.8}, {"id": 285, "x": 100.0, "y": 91.0, "val": 397.2}, {"id": 286, "x": 80.0, "y": 89.0, "val": 614.5}, {"id": 287, "x": 91.0, "y": 99.0, "val": 734.9}, {"id": 288, "x": 101.0, "y": 100.0, "val": 599.3}, {"id": 289, "x": 81.0, "y": 98.0, "val": 181.2}, {"id": 290, "x": 98.0, "y": 111.0, "val": 744.8}, {"id": 291, "x": 81.0, "y": 108.0, "val": 1022.3}, {"id": 292, "x": 90.0, "y": 120.0, "val": 899.3}, {"id": 293, "x": 100.0, "y": 118.0, "val": 363.7}, {"id": 294, "x": 98.0, "y": 130.0, "val": 513.2}, {"id": 295, "x": 90.0, "y": 140.0, "val": 648.8}, {"id": 296, "x": 90.0, "y": 138.0, "val": 645.4}, {"id": 297, "x": 121.0, "y": 131.0, "val": 13.0}, {"id": 298, "x": 111.0, "y": 140.0, "val": 190.3}, {"id": 299, "x": 108.0, "y": 121.0, "val": 893.0}, {"id": 300, "x": 120.0, "y": 141.0, "val": 104.7}, {"id": 301, "x": 119.0, "y": 118.0, "val": 150.4}, {"id": 302, "x": 158.0, "y": 228.0, "val": 558.4}, {"id": 303, "x": 140.0, "y": 229.0, "val": 558.0}, {"id": 304, "x": 150.0, "y": 241.0, "val": 318.5}, {"id": 305, "x": 151.0, "y": 218.0, "val": 394.3}, {"id": 306, "x": 161.0, "y": 241.0, "val": 141.9}, {"id": 307, "x": 141.0, "y": 240.0, "val": 112.5}, {"id": 308, "x": 160.0, "y": 218.0, "val": 580.4}, {"id": 309, "x": 139.0, "y": 220.0, "val": 535.9}, {"id": 310, "x": 178.0, "y": 211.0, "val": 398.2}, {"id": 311, "x": 159.0, "y": 209.0, "val": 517.3}, {"id": 312, "x": 169.0, "y": 221.0, "val": 427.2}, {"id": 313, "x": 170.0, "y": 198.0, "val": 367.6}, {"id": 314, "x": 180.0, "y": 218.0, "val": 374.7}, {"id": 315, "x": 178.0, "y": 201.0, "val": 144.8}, {"id": 316, "x": 158.0, "y": 198.0, "val": 169.8}, {"id": 317, "x": 219.0, "y": 88.0, "val": 235.1}, {"id": 318, "x": 198.0, "y": 90.0, "val": 611.7}, {"id": 319, "x": 211.0, "y": 100.0, "val": 746.4}, {"id": 320, "x": 208.0, "y": 80.0, "val": 436.6}, {"id": 321, "x": 221.0, "y": 99.0, "val": 540.9}, {"id": 322, "x": 199.0, "y": 98.0, "val": 801.0}, {"id": 323, "x": 220.0, "y": 81.0, "val": 272.1}, {"id": 324, "x": 198.0, "y": 78.0, "val": 204.1}, {"id": 325, "x": 220.0, "y": 150.0, "val": 543.9}, {"id": 326, "x": 200.0, "y": 150.0, "val": 606.2}, {"id": 327, "x": 208.0, "y": 159.0, "val": 356.0}, {"id": 328, "x": 210.0, "y": 140.0, "val": 440.9}, {"id": 329, "x": 221.0, "y": 160.0, "val": 301.8}, {"id": 330, "x": 198.0, "y": 161.0, "val": 369.4}, {"id": 331, "x": 219.0, "y": 139.0, "val": 166.8}, {"id": 332, "x": 200.0, "y": 139.0, "val": 230.9}, {"id": 333, "x": 239.0, "y": 8.0, "val": 240.3}, {"id": 334, "x": 218.0, "y": 8.0, "val": 737.1}, {"id": 335, "x": 229.0, "y": 19.0, "val": 518.6}, {"id": 336, "x": 239.0, "y": 18.0, "val": 390.7}, {"id": 337, "x": 218.0, "y": 18.0, "val": 797.4}, {"id": 338, "x": 238.0, "y": 229.0, "val": 602.6}, {"id": 339, "x": 218.0, "y": 228.0, "val": 430.8}, {"id": 340, "x": 231.0, "y": 239.0, "val": 354.1}, {"id": 341, "x": 230.0, "y": 221.0, "val": 602.4}, {"id": 342, "x": 240.0, "y": 239.0, "val": 172.6}, {"id": 343, "x": 221.0, "y": 241.0, "val": 324.8}, {"id": 344, "x": 239.0, "y": 220.0, "val": 420.1}, {"id": 345, "x": 218.0, "y": 218.0, "val": 763.5}, {"id": 346, "x": 35.0, "y": 71.0, "val": 687.8}, {"id": 347, "x": 24.0, "y": 71.0, "val": 735.8}, {"id": 348, "x": 34.0, "y": 88.0, "val": 86.9}, {"id": 349, "x": 23.0, "y": 91.0, "val": 817.0}, {"id": 350, "x": 54.0, "y": 10.0, "val": 637.9}, {"id": 351, "x": 46.0, "y": 11.0, "val": 512.3}, {"id": 352, "x": 55.0, "y": 89.0, "val": 423.4}, {"id": 353, "x": 45.0, "y": 89.0, "val": 569.6}, {"id": 354, "x": 53.0, "y": 150.0, "val": 858.0}, {"id": 355, "x": 46.0, "y": 148.0, "val": 234.0}, {"id": 356, "x": 55.0, "y": 168.0, "val": 876.0}, {"id": 357, "x": 43.0, "y": 170.0, "val": 1082.8}, {"id": 358, "x": 55.0, "y": 191.0, "val": 1392.6}, {"id": 359, "x": 44.0, "y": 191.0, "val": 646.6}, {"id": 360, "x": 55.0, "y": 211.0, "val": 889.5}, {"id": 361, "x": 46.0, "y": 211.0, "val": 509.2}, {"id": 362, "x": 54.0, "y": 269.0, "val": 613.1}, {"id": 363, "x": 43.0, "y": 271.0, "val": 767.8}, {"id": 364, "x": 73.0, "y": 29.0, "val": 649.4}, {"id": 365, "x": 64.0, "y": 31.0, "val": 235.4}, {"id": 366, "x": 75.0, "y": 129.0, "val": 782.8}, {"id": 367, "x": 64.0, "y": 129.0, "val": 227.3}, {"id": 368, "x": 73.0, "y": 149.0, "val": 722.9}, {"id": 369, "x": 64.0, "y": 151.0, "val": 974.5}, {"id": 370, "x": 75.0, "y": 171.0, "val": 512.2}, {"id": 371, "x": 63.0, "y": 168.0, "val": 1215.8}, {"id": 372, "x": 73.0, "y": 188.0, "val": 687.1}, {"id": 373, "x": 64.0, "y": 191.0, "val": 1259.9}, {"id": 374, "x": 93.0, "y": 48.0, "val": 687.5}, {"id": 375, "x": 86.0, "y": 48.0, "val": 471.9}, {"id": 376, "x": 93.0, "y": 70.0, "val": 512.1}, {"id": 377, "x": 84.0, "y": 69.0, "val": 963.9}, {"id": 378, "x": 93.0, "y": 90.0, "val": 874.0}, {"id": 379, "x": 86.0, "y": 89.0, "val": 582.4}, {"id": 380, "x": 96.0, "y": 111.0, "val": 553.2}, {"id": 381, "x": 85.0, "y": 108.0, "val": 937.3}, {"id": 382, "x": 93.0, "y": 131.0, "val": 883.6}, {"id": 383, "x": 86.0, "y": 131.0, "val": 879.9}, {"id": 384, "x": 114.0, "y": 131.0, "val": 268.4}, {"id": 385, "x": 106.0, "y": 130.0, "val": 651.5}, {"id": 386, "x": 155.0, "y": 229.0, "val": 386.4}, {"id": 387, "x": 145.0, "y": 230.0, "val": 333.2}, {"id": 388, "x": 174.0, "y": 208.0, "val": 339.2}, {"id": 389, "x": 166.0, "y": 211.0, "val": 600.3}, {"id": 390, "x": 215.0, "y": 89.0, "val": 595.2}, {"id": 391, "x": 205.0, "y": 89.0, "val": 809.6}, {"id": 392, "x": 215.0, "y": 148.0, "val": 293.3}, {"id": 393, "x": 204.0, "y": 151.0, "val": 697.3}, {"id": 394, "x": 236.0, "y": 9.0, "val": 515.9}, {"id": 395, "x": 223.0, "y": 9.0, "val": 613.2}, {"id": 396, "x": 236.0, "y": 229.0, "val": 665.3}, {"id": 397, "x": 226.0, "y": 230.0, "val": 813.6}, {"id": 398, "x": 35.0, "y": 80.0, "val": 174.8}, {"id": 399, "x": 24.0, "y": 79.0, "val": 891.8}, {"id": 400, "x": 36.0, "y": 61.0, "val": 699.6}, {"id": 401, "x": 26.0, "y": 58.0, "val": 39.5}, {"id": 402, "x": 16.0, "y": 80.0, "val": 915.6}, {"id": 403, "x": 43.0, "y": 60.0, "val": 584.0}, {"id": 404, "x": 15.0, "y": 88.0, "val": 610.0}, {"id": 405, "x": 46.0, "y": 99.0, "val": 566.8}, {"id": 406, "x": 36.0, "y": 99.0, "val": 38.1}, {"id": 407, "x": 54.0, "y": 80.0, "val": 483.0}, {"id": 408, "x": 46.0, "y": 81.0, "val": 542.6}, {"id": 409, "x": 54.0, "y": 161.0, "val": 959.3}, {"id": 410, "x": 43.0, "y": 161.0, "val": 631.9}, {"id": 411, "x": 65.0, "y": 160.0, "val": 928.3}, {"id": 412, "x": 33.0, "y": 160.0, "val": 431.0}, {"id": 413, "x": 36.0, "y": 170.0, "val": 672.3}, {"id": 414, "x": 53.0, "y": 179.0, "val": 1003.4}, {"id": 415, "x": 44.0, "y": 180.0, "val": 876.4}, {"id": 416, "x": 65.0, "y": 181.0, "val": 734.1}, {"id": 417, "x": 34.0, "y": 180.0, "val": 366.0}, {"id": 418, "x": 33.0, "y": 191.0, "val": 296.5}, {"id": 419, "x": 55.0, "y": 199.0, "val": 1069.2}, {"id": 420, "x": 46.0, "y": 198.0, "val": 804.3}, {"id": 421, "x": 63.0, "y": 201.0, "val": 731.1}, {"id": 422, "x": 34.0, "y": 201.0, "val": 318.1}, {"id": 423, "x": 65.0, "y": 210.0, "val": 238.6}, {"id": 424, "x": 35.0, "y": 208.0, "val": 428.9}, {"id": 425, "x": 46.0, "y": 220.0, "val": 734.4}, {"id": 426, "x": 36.0, "y": 219.0, "val": 429.1}, {"id": 427, "x": 35.0, "y": 217.0, "val": 597.4}, {"id": 428, "x": 53.0, "y": 258.0, "val": 442.6}, {"id": 429, "x": 46.0, "y": 260.0, "val": 765.2}, {"id": 430, "x": 45.0, "y": 281.0, "val": 605.5}, {"id": 431, "x": 35.0, "y": 278.0, "val": 795.9}, {"id": 432, "x": 35.0, "y": 259.0, "val": 235.0}, {"id": 433, "x": 84.0, "y": 30.0, "val": 562.0}, {"id": 434, "x": 84.0, "y": 41.0, "val": 411.4}, {"id": 435, "x": 75.0, "y": 40.0, "val": 696.7}, {"id": 436, "x": 73.0, "y": 141.0, "val": 790.9}, {"id": 437, "x": 63.0, "y": 140.0, "val": 696.5}, {"id": 438, "x": 84.0, "y": 138.0, "val": 687.3}, {"id": 439, "x": 76.0, "y": 159.0, "val": 597.5}, {"id": 440, "x": 84.0, "y": 161.0, "val": 437.4}, {"id": 441, "x": 86.0, "y": 169.0, "val": 317.4}, {"id": 442, "x": 73.0, "y": 199.0, "val": 470.7}, {"id": 443, "x": 76.0, "y": 51.0, "val": 498.7}, {"id": 444, "x": 94.0, "y": 61.0, "val": 778.7}, {"id": 445, "x": 85.0, "y": 60.0, "val": 523.3}, {"id": 446, "x": 104.0, "y": 38.0, "val": 617.1}, {"id": 447, "x": 93.0, "y": 41.0, "val": 395.5}, {"id": 448, "x": 75.0, "y": 90.0, "val": 518.9}, {"id": 449, "x": 94.0, "y": 101.0, "val": 383.7}, {"id": 450, "x": 85.0, "y": 100.0, "val": 704.1}, {"id": 451, "x": 104.0, "y": 109.0, "val": 562.3}, {"id": 452, "x": 75.0, "y": 110.0, "val": 655.3}, {"id": 453, "x": 95.0, "y": 121.0, "val": 823.6}, {"id": 454, "x": 83.0, "y": 119.0, "val": 847.7}, {"id": 455, "x": 94.0, "y": 140.0, "val": 607.5}, {"id": 456, "x": 103.0, "y": 139.0, "val": 491.2}, {"id": 457, "x": 114.0, "y": 120.0, "val": 319.5}, {"id": 458, "x": 104.0, "y": 118.0, "val": 594.0}, {"id": 459, "x": 196.0, "y": 91.0, "val": 433.5}, {"id": 460, "x": 215.0, "y": 101.0, "val": 209.6}, {"id": 461, "x": 204.0, "y": 101.0, "val": 533.8}, {"id": 462, "x": 196.0, "y": 101.0, "val": 592.4}, {"id": 463, "x": 195.0, "y": 149.0, "val": 478.7}, {"id": 464, "x": 216.0, "y": 11.0, "val": 660.2}, {"id": 465, "x": 225.0, "y": 19.0, "val": 832.2}, {"id": 466, "x": 214.0, "y": 19.0, "val": 242.5}, {"id": 467, "x": 245.0, "y": 231.0, "val": 161.2}, {"id": 468, "x": 233.0, "y": 220.0, "val": 626.0}, {"id": 469, "x": 226.0, "y": 221.0, "val": 800.1}, {"id": 470, "x": 213.0, "y": 218.0, "val": 482.6}];
+
+    const SCALE = 1.2; 
+    let currentNugget = 0.10;
+    let currentRange = 80;
+    const totalSill = 1.0;
+    let viewMode = 'estimate';
+
+    const inputNugget = document.getElementById('input-nugget');
+    const inputRange = document.getElementById('input-range');
+    const valNugget = document.getElementById('val-nugget');
+    const valRange = document.getElementById('val-range');
+    const btnToggleView = document.getElementById('btn-toggle-view');
+
+    const ctxVario = document.getElementById('canvas-variogram').getContext('2d');
+    const ctxKriging = document.getElementById('canvas-kriging').getContext('2d');
+
+    function sphericalVariogram(h, nugget, range) {
+        if (h === 0) return 0;
+        const contribution = totalSill - nugget;
+        if (h <= range) {
+            return nugget + contribution * (1.5 * (h / range) - 0.5 * Math.pow(h / range, 3));
+        }
+        return totalSill;
+    }
+
+    function drawVariogram() {
+        const w = ctxVario.canvas.width;
+        const h = ctxVario.canvas.height;
+        ctxVario.clearRect(0, 0, w, h);
+
+        ctxVario.strokeStyle = '#4C566A';
+        ctxVario.lineWidth = 1;
+        ctxVario.font = '10px sans-serif';
+        ctxVario.fillStyle = '#D8DEE9';
+
+        const ySill = h - 35 - (1.0 * (h - 55));
+        ctxVario.beginPath();
+        ctxVario.setLineDash([4, 4]);
+        ctxVario.moveTo(45, ySill);
+        ctxVario.lineTo(w - 15, ySill);
+        ctxVario.stroke();
+        ctxVario.setLineDash([]);
+        ctxVario.fillText("Sill = 1.0", w - 75, ySill - 6);
+
+        ctxVario.strokeStyle = '#88C0D0';
+        ctxVario.lineWidth = 2.5;
+        ctxVario.beginPath();
+
+        const maxDistX = 300; 
+        for (let pixelX = 45; pixelX < w - 15; pixelX++) {
+            const distance = ((pixelX - 45) / (w - 60)) * maxDistX;
+            const gamma = sphericalVariogram(distance, currentNugget, currentRange);
+            const pixelY = h - 35 - (gamma * (h - 55));
+
+            if (pixelX === 45) ctxVario.moveTo(pixelX, pixelY);
+            else ctxVario.lineTo(pixelX, pixelY);
+        }
+        ctxVario.stroke();
+
+        ctxVario.strokeStyle = '#E5E9F0';
+        ctxVario.lineWidth = 1.5;
+        ctxVario.beginPath();
+        ctxVario.moveTo(45, 15);
+        ctxVario.lineTo(45, h - 35);
+        ctxVario.lineTo(w - 15, h - 35);
+        ctxVario.stroke();
+
+        ctxVario.fillStyle = '#ECEFF4';
+        ctxVario.fillText("γ(h)", 15, 20);
+        ctxVario.fillText("Distance h (m)", w / 2 - 35, h - 10);
+        ctxVario.fillText("0.0", 25, h - 35);
+        ctxVario.fillText("1.0", 25, h - 35 - (1.0 * (h - 55)));
+        
+        const xRange = 45 + (currentRange / maxDistX) * (w - 60);
+        if (xRange < w - 15) {
+            ctxVario.strokeStyle = '#EBCB8B';
+            ctxVario.beginPath();
+            ctxVario.moveTo(xRange, h - 40);
+            ctxVario.lineTo(xRange, h - 30);
+            ctxVario.stroke();
+            ctxVario.fillStyle = '#EBCB8B';
+            ctxVario.fillText("a = " + currentRange + "m", xRange - 15, h - 20);
+        }
+    }
+
+    function solveLinearSystem(A, B) {
+        const n = B.length;
+        for (let i = 0; i < n; i++) {
+            let maxRow = i;
+            for (let k = i + 1; k < n; k++) {
+                if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) maxRow = k;
+            }
+            let temp = A[i]; A[i] = A[maxRow]; A[maxRow] = temp;
+            let t = B[i]; B[i] = B[maxRow]; B[maxRow] = t;
+
+            for (let k = i + 1; k < n; k++) {
+                let c = -A[k][i] / A[i][i];
+                for (let j = i; j < n; j++) {
+                    if (i === j) A[k][j] = 0;
+                    else A[k][j] += c * A[i][j];
+                }
+                B[k] += c * B[i];
+            }
+        }
+        const X = new Array(n).fill(0);
+        for (let i = n - 1; i >= 0; i--) {
+            X[i] = B[i] / A[i][i];
+            for (let k = i - 1; k >= 0; k--) {
+                B[k] -= A[k][i] * X[i];
+            }
+        }
+        return X;
+    }
+
+    function runKriging() {
+        const w = ctxKriging.canvas.width;
+        const h = ctxKriging.canvas.height;
+        const imgData = ctxKriging.createImageData(w, h);
+        
+        const step = 4; 
+        const maxLocalNeighbors = 12; 
+
+        for (let y = 0; y < h; y += step) {
+            for (let x = 0; x < w; x += step) {
+                const realX = x / SCALE;
+                const realY = y / SCALE;
+
+                let distances = [];
+                for (let i = 0; i < dataset.length; i++) {
+                    const dx = realX - dataset[i].x;
+                    const dy = realY - dataset[i].y;
+                    distances.push({ idx: i, d2: dx*dx + dy*dy });
+                }
+                distances.sort((a, b) => a.d2 - b.d2);
+                
+                let localSamples = [];
+                for (let i = 0; i < Math.min(maxLocalNeighbors, distances.length); i++) {
+                    localSamples.push(dataset[distances[i].idx]);
+                }
+                
+                const n = localSamples.length;
+
+                const matK = Array.from({ length: n + 1 }, () => new Array(n + 1).fill(0));
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        const dx = localSamples[i].x - localSamples[j].x;
+                        const dy = localSamples[i].y - localSamples[j].y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        matK[i][j] = sphericalVariogram(dist, currentNugget, currentRange);
+                    }
+                    matK[i][n] = 1.0;
+                    matK[n][i] = 1.0;
+                }
+                matK[n][n] = 0;
+
+                const vecK = new Array(n + 1).fill(0);
+                for (let i = 0; i < n; i++) {
+                    const dx = realX - localSamples[i].x;
+                    const dy = realY - localSamples[i].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    vecK[i] = sphericalVariogram(dist, currentNugget, currentRange);
+                }
+                vecK[n] = 1.0;
+
+                const weights = solveLinearSystem(matK, vecK);
+
+                let estimate = 0;
+                let variance = 0;
+                for (let i = 0; i < n; i++) {
+                    estimate += weights[i] * localSamples[i].val;
+                    variance += weights[i] * vecK[i];
+                }
+                variance += weights[n];
+
+                let r, g, b;
+                if (viewMode === 'estimate') {
+                    const normEst = Math.max(0, Math.min(1, estimate / 1100));
+                    r = Math.floor(normEst * 255);
+                    g = Math.floor((1 - Math.abs(normEst - 0.5) * 2) * 210);
+                    b = Math.floor((1 - normEst) * 255);
+                } else {
+                    const normVar = Math.max(0, Math.min(1, variance / 1.05));
+                    r = Math.floor(normVar * 235);
+                    g = Math.floor(normVar * 195);
+                    b = Math.floor(normVar * 140);
+                }
+
+                for (let sy = 0; sy < step; sy++) {
+                    for (let sx = 0; sx < step; sx++) {
+                        const px = x + sx;
+                        const py = y + sy;
+                        if (px < w && py < h) {
+                            const idx = (py * w + px) * 4;
+                            imgData.data[idx] = r;
+                            imgData.data[idx+1] = g;
+                            imgData.data[idx+2] = b;
+                            imgData.data[idx+3] = 255;
+                        }
+                    }
+                }
+            }
+        }
+        ctxKriging.putImageData(imgData, 0, 0);
+
+        dataset.forEach(s => {
+            const canvasX = s.x * SCALE;
+            const canvasY = s.y * SCALE;
+            ctxKriging.beginPath();
+            ctxKriging.arc(canvasX, canvasY, 1.5, 0, 2 * Math.PI);
+            ctxKriging.fillStyle = 'rgba(229, 233, 240, 0.6)';
+            ctxKriging.fill();
+        });
+    }
+
+    function updateDashboard() {
+        valNugget.innerText = currentNugget.toFixed(2);
+        valRange.innerText = currentRange;
+        drawVariogram();
+        runKriging();
+    }
+
+    inputNugget.addEventListener('input', (e) => {
+        currentNugget = parseFloat(e.target.value);
+        updateDashboard();
+    });
+
+    inputRange.addEventListener('input', (e) => {
+        currentRange = parseInt(e.target.value);
+        updateDashboard();
+    });
+
+    btnToggleView.addEventListener('click', () => {
+        if (viewMode === 'estimate') {
+            viewMode = 'variance';
+            btnToggleView.innerText = "Switch to: Estimated Grade";
+        } else {
+            viewMode = 'estimate';
+            btnToggleView.innerText = "Switch to: Kriging Variance";
+        }
+        runKriging();
+    });
+
+    updateDashboard();
+})();
+</script>

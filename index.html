@@ -175,6 +175,47 @@
         <p>Roberto is a Mining Engineer graduated from the Federal University of Ouro Preto (Brazil). He holds a MSc and PhD in Geostatistics from the Federal University of Rio Grande do Sul (Brazil) with a focus on implicit geological modeling and uncertainty assess in geological models. Roberto possesses experience in multivariate ore grades estimation and simulation workflows, resources classification and drill hole spacing analysis. He is proficient in Python programming and experienced in applying Machine Learning techniques to geosciences. He currently serves as a Senior geostatistics and data science consultant at Geovariances.</p>
     </section>
 
+    <section id="geostats-sandbox">
+            <h2>Interactive Kriging Sandbox</h2>
+            <p style="color: var(--text-dim); margin-bottom: 15px; font-size: 0.95rem;">
+                Explore dynamic spatial estimation. Adjust the variogram parameters below to watch Ordinary Kriging maps update in real-time.
+            </p>
+            
+            <div style="background: var(--nord-card); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+                <div class="sandbox-layout">
+                    
+                    <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="background: var(--nord-dark); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--nord-text); font-size: 0.9rem;">
+                                Nugget Effect (C₀): <span id="val-nugget" style="float: right; color: var(--nord-green); font-family: monospace;">0.10</span>
+                            </label>
+                            <input type="range" id="input-nugget" min="0.00" max="0.90" step="0.05" value="0.10" style="width: 100%; margin-bottom: 15px; accent-color: var(--nord-blue);">
+
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--nord-text); font-size: 0.9rem;">
+                                Spatial Range (a): <span id="val-range" style="float: right; color: var(--nord-green); font-family: monospace;">80</span> m
+                            </label>
+                            <input type="range" id="input-range" min="20" max="220" step="5" value="80" style="width: 100%; accent-color: var(--nord-blue);">
+                        </div>
+
+                        <div style="text-align: center;">
+                            <span style="font-size: 0.85rem; font-weight: 600; color: var(--nord-blue);">Variogram model</span>
+                            <canvas id="canvas-variogram" width="360" height="180" style="background: var(--nord-dark); border-radius: 6px; display: block; margin: 8px auto 0;"></canvas>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--nord-blue);">Kriging Map Grid</span>
+                        <canvas id="canvas-kriging" width="260" height="300" style="background: var(--nord-dark); border-radius: 6px; display: block; margin: 8px auto 12px; border: 1px solid var(--nord-sub);"></canvas>
+                        
+                        <button id="btn-toggle-view" style="background: var(--nord-blue); color: var(--nord-dark); border: none; padding: 8px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+                            Switch to: Kriging Variance
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
     <section id="experience">
         <h2>Work Experience</h2>
 
@@ -314,5 +355,229 @@
     </section>
 
 </main>
+
+<script>
+(function() {
+    // Highly optimized, lightweight subset from the real Walker Lake dataset (15 samples)
+    const dataset = [
+        {"x": 160.0, "y": 218.0, "val": 580.4}, 
+        {"x": 211.0, "y": 100.0, "val": 746.4}, 
+        {"x": 170.0, "y": 230.0, "val": 173.1}, 
+        {"x": 64.0,  "y": 151.0, "val": 974.5}, 
+        {"x": 108.0, "y": 88.0,  "val": 192.0}, 
+        {"x": 51.0,  "y": 48.0,  "val": 105.0}, 
+        {"x": 59.0,  "y": 20.0,  "val": 14.4}, 
+        {"x": 109.0, "y": 268.0, "val": 187.8}, 
+        {"x": 46.0,  "y": 260.0, "val": 765.2}, 
+        {"x": 86.0,  "y": 89.0,  "val": 582.4}, 
+        {"x": 91.0,  "y": 29.0,  "val": 91.6}, 
+        {"x": 208.0, "y": 268.0, "val": 125.2},
+        {"x": 250.0, "y": 141.0, "val": 551.4},
+        {"x": 11.0,  "y": 110.0, "val": 587.2},
+        {"x": 130.0, "y": 141.0, "val": 508.0}
+    ];
+
+    let currentNugget = 0.10;
+    let currentRange = 80;
+    const totalSill = 1.0;
+    let viewMode = 'estimate';
+
+    const inputNugget = document.getElementById('input-nugget');
+    const inputRange = document.getElementById('input-range');
+    const valNugget = document.getElementById('val-nugget');
+    const valRange = document.getElementById('val-range');
+    const btnToggleView = document.getElementById('btn-toggle-view');
+
+    const ctxVario = document.getElementById('canvas-variogram').getContext('2d');
+    const ctxKriging = document.getElementById('canvas-kriging').getContext('2d');
+
+    function sphericalVariogram(h, nugget, range) {
+        if (h === 0) return 0;
+        const contribution = totalSill - nugget;
+        if (h <= range) {
+            return nugget + contribution * (1.5 * (h / range) - 0.5 * Math.pow(h / range, 3));
+        }
+        return totalSill;
+    }
+
+    function drawVariogram() {
+        const w = ctxVario.canvas.width;
+        const h = ctxVario.canvas.height;
+        ctxVario.clearRect(0, 0, w, h);
+
+        ctxVario.strokeStyle = '#4C566A';
+        ctxVario.lineWidth = 1;
+        ctxVario.beginPath();
+        const ySill = h - 25 - (1.0 * (h - 45));
+        ctxVario.moveTo(35, ySill);
+        ctxVario.lineTo(w - 15, ySill);
+        ctxVario.stroke();
+
+        ctxVario.strokeStyle = '#81A1C1';
+        ctxVario.lineWidth = 2.5;
+        ctxVario.beginPath();
+        const maxDistX = 260;
+        for (let px = 35; px < w - 15; px++) {
+            const dist = ((px - 35) / (w - 50)) * maxDistX;
+            const gamma = sphericalVariogram(dist, currentNugget, currentRange);
+            const py = h - 25 - (gamma * (h - 45));
+            if (px === 35) ctxVario.moveTo(px, py);
+            else ctxVario.lineTo(px, py);
+        }
+        ctxVario.stroke();
+
+        ctxVario.strokeStyle = '#E5E9F0';
+        ctxVario.lineWidth = 1;
+        ctxVario.beginPath();
+        ctxVario.moveTo(35, 10);
+        ctxVario.lineTo(35, h - 25);
+        ctxVario.lineTo(w - 15, h - 25);
+        ctxVario.stroke();
+
+        ctxVario.fillStyle = '#D8DEE9';
+        ctxVario.font = '9px sans-serif';
+        ctxVario.fillText("Sill 1.0", w - 55, ySill - 4);
+        ctxVario.fillText("0.0", 15, h - 22);
+    }
+
+    function solveLinearSystem(A, B) {
+        const n = B.length;
+        for (let i = 0; i < n; i++) {
+            let maxRow = i;
+            for (let k = i + 1; k < n; k++) {
+                if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) maxRow = k;
+            }
+            let temp = A[i]; A[i] = A[maxRow]; A[maxRow] = temp;
+            let t = B[i]; B[i] = B[maxRow]; B[maxRow] = t;
+
+            for (let k = i + 1; k < n; k++) {
+                let c = -A[k][i] / A[i][i];
+                for (let j = i; j < n; j++) {
+                    if (i === j) A[k][j] = 0;
+                    else A[k][j] += c * A[i][j];
+                }
+                B[k] += c * B[i];
+            }
+        }
+        const X = new Array(n).fill(0);
+        for (let i = n - 1; i >= 0; i--) {
+            X[i] = B[i] / A[i][i];
+            for (let k = i - 1; k >= 0; k--) {
+                B[k] -= A[k][i] * X[i];
+            }
+        }
+        return X;
+    }
+
+    // High-performance Global Kriging with reduced matrix sizing (15 points)
+    function runKriging() {
+        const w = ctxKriging.canvas.width;
+        const h = ctxKriging.canvas.height;
+        const imgData = ctxKriging.createImageData(w, h);
+        const step = 4; 
+        const n = dataset.length;
+
+        if (n === 0) return;
+
+        // 1. Pre-build the structural matrix [K] once per execution change
+        const matK = Array.from({ length: n + 1 }, () => new Array(n + 1).fill(0));
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                const dx = dataset[i].x - dataset[j].x;
+                const dy = dataset[i].y - dataset[j].y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                matK[i][j] = sphericalVariogram(d, currentNugget, currentRange);
+            }
+            matK[i][n] = 1.0;
+            matK[n][i] = 1.0;
+        }
+        matK[n][n] = 0;
+
+        // 2. Global Ordinary Kriging calculations on matrix
+        for (let y = 0; y < h; y += step) {
+            for (let x = 0; x < w; x += step) {
+                
+                const vecK = new Array(n + 1).fill(0);
+                for (let i = 0; i < n; i++) {
+                    const dx = x - dataset[i].x;
+                    const dy = y - dataset[i].y;
+                    vecK[i] = sphericalVariogram(Math.sqrt(dx * dx + dy * dy), currentNugget, currentRange);
+                }
+                vecK[n] = 1.0;
+
+                const matA = matK.map(row => [...row]);
+                const wts = solveLinearSystem(matA, vecK);
+
+                let est = 0;
+                let variance = 0;
+                for (let i = 0; i < n; i++) {
+                    est += wts[i] * dataset[i].val;
+                    variance += wts[i] * vecK[i];
+                }
+                variance += wts[n];
+
+                let r, g, b;
+                if (viewMode === 'estimate') {
+                    const norm = Math.max(0, Math.min(1, est / 1100));
+                    r = Math.floor(norm * 255);
+                    g = Math.floor((1 - Math.abs(norm - 0.5) * 2) * 210);
+                    b = Math.floor((1 - norm) * 255);
+                } else {
+                    const normV = Math.max(0, Math.min(1, variance / 1.05));
+                    r = Math.floor(normV * 235);
+                    g = Math.floor(normV * 195);
+                    b = Math.floor(normV * 140);
+                }
+
+                for (let sy = 0; sy < step; sy++) {
+                    for (let sx = 0; sx < step; sx++) {
+                        if (x + sx < w && y + sy < h) {
+                            const idx = ((y + sy) * w + (x + sx)) * 4;
+                            imgData.data[idx] = r;
+                            imgData.data[idx+1] = g;
+                            imgData.data[idx+2] = b;
+                            imgData.data[idx+3] = 255;
+                        }
+                    }
+                }
+            }
+        }
+        ctxKriging.putImageData(imgData, 0, 0);
+
+        dataset.forEach(s => {
+            ctxKriging.beginPath();
+            ctxKriging.arc(s.x, s.y, 3, 0, 2 * Math.PI);
+            ctxKriging.fillStyle = '#FFF';
+            ctxKriging.strokeStyle = '#2E3440';
+            ctxKriging.lineWidth = 1;
+            ctxKriging.fill();
+            ctxKriging.stroke();
+        });
+    }
+
+    function update() {
+        valNugget.innerText = currentNugget.toFixed(2);
+        valRange.innerText = currentRange;
+        drawVariogram();
+        runKriging();
+    }
+
+    inputNugget.addEventListener('input', (e) => { currentNugget = parseFloat(e.target.value); update(); });
+    inputRange.addEventListener('input', (e) => { currentRange = parseInt(e.target.value); update(); });
+    btnToggleView.addEventListener('click', () => {
+        if (viewMode === 'estimate') {
+            viewMode = 'variance';
+            btnToggleView.innerText = "Switch to: Estimated Grade";
+        } else {
+            viewMode = 'estimate';
+            btnToggleView.innerText = "Switch to: Kriging Variance";
+        }
+        runKriging();
+    });
+
+    update();
+})();
+</script>
+
 </body>
 </html>
