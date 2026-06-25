@@ -194,7 +194,7 @@
                     <label style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--nord-text); font-size: 0.9rem;">
                         Spatial Range (a): <span id="val-range" style="float: right; color: var(--nord-green); font-family: monospace;">25 m</span>
                     </label>
-                    <input type="range" id="input-range" min="1" max="50" step="1" value="25" style="width: 100%; accent-color: var(--nord-blue);">
+                    <input type="range" id="input-range" min="1" max="60" step="1" value="25" style="width: 100%; accent-color: var(--nord-blue);">
                 </div>
 
                 <div style="text-align: center; width: 100%;">
@@ -456,7 +456,7 @@
         ctxVario.strokeStyle = '#81A1C1';
         ctxVario.lineWidth = 2.5;
         ctxVario.beginPath();
-        const maxDistX = 260;
+        const maxDistX = 60;
         for (let px = 35; px < w - 15; px++) {
             const dist = ((px - 35) / (w - 50)) * maxDistX;
             const gamma = sphericalVariogram(dist, currentNugget, currentRange);

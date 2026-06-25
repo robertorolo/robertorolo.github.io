@@ -16,9 +16,9 @@
                     <input type="range" id="input-nugget" min="0" max="0.95" step="0.05" value="0.10" style="width: 100%; margin-bottom: 15px; accent-color: var(--nord-blue, #81A1C1);">
 
                     <label style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--nord-text, #D8DEE9); font-size: 0.9rem;">
-                        Range (a): <span id="val-range" style="float: right; color: var(--nord-green, #A3BE8C); font-family: monospace;">80</span> m
+                        Range (a): <span id="val-range" style="float: right; color: var(--nord-green, #A3BE8C); font-family: monospace;">60</span> m
                     </label>
-                    <input type="range" id="input-range" min="15" max="250" step="5" value="80" style="width: 100%; accent-color: var(--nord-blue, #81A1C1);">
+                    <input type="range" id="input-range" min="15" max="60" step="5" value="60" style="width: 100%; accent-color: var(--nord-blue, #81A1C1);">
                 </div>
 
                 <h3 style="color: var(--nord-blue, #81A1C1); margin-bottom: 10px; font-size: 1rem; text-align: center;">Spherical Variogram Model γ(h)</h3>
@@ -47,7 +47,7 @@
 
     const SCALE = 1.2; 
     let currentNugget = 0.10;
-    let currentRange = 80;
+    let currentRange = 60;
     const totalSill = 1.0;
     let viewMode = 'estimate';
 
@@ -92,7 +92,7 @@
         ctxVario.lineWidth = 2.5;
         ctxVario.beginPath();
 
-        const maxDistX = 300; 
+        const maxDistX = 60; 
         for (let pixelX = 45; pixelX < w - 15; pixelX++) {
             const distance = ((pixelX - 45) / (w - 60)) * maxDistX;
             const gamma = sphericalVariogram(distance, currentNugget, currentRange);
