@@ -192,9 +192,9 @@
                     <input type="range" id="input-nugget" min="0.00" max="0.90" step="0.05" value="0.10" style="width: 100%; margin-bottom: 15px; accent-color: var(--nord-blue);">
 
                     <label style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--nord-text); font-size: 0.9rem;">
-                        Spatial Range (a): <span id="val-range" style="float: right; color: var(--nord-green); font-family: monospace;">80</span> m
+                        Spatial Range (a): <span id="val-range" style="float: right; color: var(--nord-green); font-family: monospace;">25 m</span>
                     </label>
-                    <input type="range" id="input-range" min="20" max="220" step="5" value="80" style="width: 100%; accent-color: var(--nord-blue);">
+                    <input type="range" id="input-range" min="1" max="50" step="1" value="25" style="width: 100%; accent-color: var(--nord-blue);">
                 </div>
 
                 <div style="text-align: center; width: 100%;">
@@ -205,7 +205,7 @@
 
             <div style="text-align: center; width: 100%; min-width: 0;">
                 <span style="font-size: 0.85rem; font-weight: 600; color: var(--nord-blue);">Live Kriging Map</span>
-                <canvas id="canvas-kriging" width="260" height="300" style="background: var(--nord-dark); border-radius: 6px; display: block; margin: 8px auto 12px; border: 1px solid var(--nord-sub); max-width: 100%; height: auto;"></canvas>
+                <canvas id="canvas-kriging" width="260" height="300" style="background: var(--nord-dark); border-radius: 0; display: block; margin: 8px auto 12px; border: 1px solid var(--nord-sub); max-width: 100%; height: auto;"></canvas>
                 
                 <button id="btn-toggle-view" style="background: var(--nord-blue); color: var(--nord-dark); border: none; padding: 8px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
                     Switch to: Kriging Variance
@@ -356,29 +356,14 @@
 
 </main>
 
+<script src="walker_lakeUFRGS.js"></script>
 <script>
 (function() {
-    // Highly optimized, lightweight subset from the real Walker Lake dataset (15 samples)
-    const dataset = [
-        {"x": 160.0, "y": 218.0, "val": 580.4}, 
-        {"x": 211.0, "y": 100.0, "val": 746.4}, 
-        {"x": 170.0, "y": 230.0, "val": 173.1}, 
-        {"x": 64.0,  "y": 151.0, "val": 974.5}, 
-        {"x": 108.0, "y": 88.0,  "val": 192.0}, 
-        {"x": 51.0,  "y": 48.0,  "val": 105.0}, 
-        {"x": 59.0,  "y": 20.0,  "val": 14.4}, 
-        {"x": 109.0, "y": 268.0, "val": 187.8}, 
-        {"x": 46.0,  "y": 260.0, "val": 765.2}, 
-        {"x": 86.0,  "y": 89.0,  "val": 582.4}, 
-        {"x": 91.0,  "y": 29.0,  "val": 91.6}, 
-        {"x": 208.0, "y": 268.0, "val": 125.2},
-        {"x": 250.0, "y": 141.0, "val": 551.4},
-        {"x": 11.0,  "y": 110.0, "val": 587.2},
-        {"x": 130.0, "y": 141.0, "val": 508.0}
-    ];
+    let dataset = [];
+    let estimateColorMax = 1;
 
     let currentNugget = 0.10;
-    let currentRange = 80;
+    let currentRange = 25;
     const totalSill = 1.0;
     let viewMode = 'estimate';
 
@@ -390,6 +375,61 @@
 
     const ctxVario = document.getElementById('canvas-variogram').getContext('2d');
     const ctxKriging = document.getElementById('canvas-kriging').getContext('2d');
+
+    function parseWalkerLakeCsv(csvText) {
+        const rows = csvText.trim().split(/\r?\n/);
+        const headers = rows.shift().split(',').map(header => header.trim());
+        const xIndex = headers.indexOf('X');
+        const yIndex = headers.indexOf('Y');
+        const coIndex = headers.indexOf('Co');
+
+        if (xIndex === -1 || yIndex === -1 || coIndex === -1) {
+            throw new Error('Walker Lake CSV must include X, Y, and Co columns.');
+        }
+
+        return rows
+            .map((row, index) => {
+                const cols = row.split(',');
+                return {
+                    id: index + 1,
+                    x: Number(cols[xIndex]),
+                    y: Number(cols[yIndex]),
+                    val: Number(cols[coIndex])
+                };
+            })
+            .filter(sample => Number.isFinite(sample.x) && Number.isFinite(sample.y) && Number.isFinite(sample.val));
+    }
+
+    function drawKrigingMessage(message) {
+        const w = ctxKriging.canvas.width;
+        const h = ctxKriging.canvas.height;
+        ctxKriging.clearRect(0, 0, w, h);
+        ctxKriging.fillStyle = '#D8DEE9';
+        ctxKriging.font = '12px sans-serif';
+        ctxKriging.textAlign = 'center';
+        ctxKriging.fillText(message, w / 2, h / 2);
+        ctxKriging.textAlign = 'left';
+    }
+
+    async function loadDataset() {
+        drawKrigingMessage('Loading Walker Lake data...');
+
+        try {
+            const response = await fetch('walker_lakeUFRGS.csv');
+            if (!response.ok) {
+                throw new Error(`Unable to load walker_lakeUFRGS.csv (${response.status})`);
+            }
+            dataset = parseWalkerLakeCsv(await response.text());
+        } catch (error) {
+            if (!Array.isArray(window.WALKER_LAKE_UFRGS)) {
+                throw error;
+            }
+            dataset = window.WALKER_LAKE_UFRGS;
+        }
+
+        estimateColorMax = Math.max(...dataset.map(sample => sample.val), 1);
+        update();
+    }
 
     function sphericalVariogram(h, nugget, range) {
         if (h === 0) return 0;
@@ -469,64 +509,90 @@
         return X;
     }
 
-    // High-performance Global Kriging with reduced matrix sizing (15 points)
+    function clamp01(value) {
+        return Math.max(0, Math.min(1, value));
+    }
+
+    function jetColor(value) {
+        const t = clamp01(value);
+        return {
+            r: Math.round(255 * clamp01(1.5 - Math.abs(4 * t - 3))),
+            g: Math.round(255 * clamp01(1.5 - Math.abs(4 * t - 2))),
+            b: Math.round(255 * clamp01(1.5 - Math.abs(4 * t - 1)))
+        };
+    }
+
+    function canvasYToDataY(canvasY, height) {
+        return height - canvasY;
+    }
+
+    function dataYToCanvasY(dataY, height) {
+        return height - dataY;
+    }
+
     function runKriging() {
         const w = ctxKriging.canvas.width;
         const h = ctxKriging.canvas.height;
-        const imgData = ctxKriging.createImageData(w, h);
-        const step = 4; 
-        const n = dataset.length;
-
-        if (n === 0) return;
-
-        // 1. Pre-build the structural matrix [K] once per execution change
-        const matK = Array.from({ length: n + 1 }, () => new Array(n + 1).fill(0));
-        for (let i = 0; i < n; i++) {
-            for (let j = 0; j < n; j++) {
-                const dx = dataset[i].x - dataset[j].x;
-                const dy = dataset[i].y - dataset[j].y;
-                const d = Math.sqrt(dx * dx + dy * dy);
-                matK[i][j] = sphericalVariogram(d, currentNugget, currentRange);
-            }
-            matK[i][n] = 1.0;
-            matK[n][i] = 1.0;
+        if (dataset.length === 0) {
+            drawKrigingMessage('Loading Walker Lake data...');
+            return;
         }
-        matK[n][n] = 0;
 
-        // 2. Global Ordinary Kriging calculations on matrix
+        const imgData = ctxKriging.createImageData(w, h);
+        const step = 10; 
+        const maxLocalNeighbors = 12;
+
         for (let y = 0; y < h; y += step) {
             for (let x = 0; x < w; x += step) {
-                
+                const blockX = x + step / 2;
+                const blockY = canvasYToDataY(y + step / 2, h);
+                const distances = dataset.map((sample, index) => {
+                    const dx = blockX - sample.x;
+                    const dy = blockY - sample.y;
+                    return { index, d2: dx * dx + dy * dy };
+                });
+                distances.sort((a, b) => a.d2 - b.d2);
+
+                const localSamples = distances
+                    .slice(0, Math.min(maxLocalNeighbors, distances.length))
+                    .map(item => dataset[item.index]);
+                const n = localSamples.length;
+                const matK = Array.from({ length: n + 1 }, () => new Array(n + 1).fill(0));
+
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        const dx = localSamples[i].x - localSamples[j].x;
+                        const dy = localSamples[i].y - localSamples[j].y;
+                        matK[i][j] = sphericalVariogram(Math.sqrt(dx * dx + dy * dy), currentNugget, currentRange);
+                    }
+                    matK[i][n] = 1.0;
+                    matK[n][i] = 1.0;
+                }
+                matK[n][n] = 0;
+
                 const vecK = new Array(n + 1).fill(0);
                 for (let i = 0; i < n; i++) {
-                    const dx = x - dataset[i].x;
-                    const dy = y - dataset[i].y;
+                    const dx = blockX - localSamples[i].x;
+                    const dy = blockY - localSamples[i].y;
                     vecK[i] = sphericalVariogram(Math.sqrt(dx * dx + dy * dy), currentNugget, currentRange);
                 }
                 vecK[n] = 1.0;
 
-                const matA = matK.map(row => [...row]);
-                const wts = solveLinearSystem(matA, vecK);
+                const wts = solveLinearSystem(matK, vecK);
 
                 let est = 0;
                 let variance = 0;
                 for (let i = 0; i < n; i++) {
-                    est += wts[i] * dataset[i].val;
+                    est += wts[i] * localSamples[i].val;
                     variance += wts[i] * vecK[i];
                 }
                 variance += wts[n];
 
                 let r, g, b;
                 if (viewMode === 'estimate') {
-                    const norm = Math.max(0, Math.min(1, est / 1100));
-                    r = Math.floor(norm * 255);
-                    g = Math.floor((1 - Math.abs(norm - 0.5) * 2) * 210);
-                    b = Math.floor((1 - norm) * 255);
+                    ({ r, g, b } = jetColor(est / estimateColorMax));
                 } else {
-                    const normV = Math.max(0, Math.min(1, variance / 1.05));
-                    r = Math.floor(normV * 235);
-                    g = Math.floor(normV * 195);
-                    b = Math.floor(normV * 140);
+                    ({ r, g, b } = jetColor(variance / 1.05));
                 }
 
                 for (let sy = 0; sy < step; sy++) {
@@ -545,11 +611,12 @@
         ctxKriging.putImageData(imgData, 0, 0);
 
         dataset.forEach(s => {
+            const color = jetColor(s.val / estimateColorMax);
             ctxKriging.beginPath();
-            ctxKriging.arc(s.x, s.y, 3, 0, 2 * Math.PI);
-            ctxKriging.fillStyle = '#FFF';
+            ctxKriging.arc(s.x, dataYToCanvasY(s.y, h), 2, 0, 2 * Math.PI);
+            ctxKriging.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
             ctxKriging.strokeStyle = '#2E3440';
-            ctxKriging.lineWidth = 1;
+            ctxKriging.lineWidth = 0.5;
             ctxKriging.fill();
             ctxKriging.stroke();
         });
@@ -557,7 +624,7 @@
 
     function update() {
         valNugget.innerText = currentNugget.toFixed(2);
-        valRange.innerText = currentRange;
+        valRange.innerText = currentRange + ' m';
         drawVariogram();
         runKriging();
     }
@@ -575,7 +642,11 @@
         runKriging();
     });
 
-    update();
+    drawVariogram();
+    loadDataset().catch(error => {
+        console.warn(error);
+        drawKrigingMessage('CSV unavailable');
+    });
 })();
 </script>
 
