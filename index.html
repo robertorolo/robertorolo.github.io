@@ -148,6 +148,51 @@
 
         a { color: var(--orange); text-decoration: none; }
         a:hover { text-decoration: underline; }
+
+        #geostats-sandbox {
+            --nord-dark: var(--bg);
+            --nord-card: var(--card);
+            --nord-blue: var(--accent);
+            --nord-green: var(--highlight);
+            --nord-text: var(--text-main);
+            --nord-sub: #4C566A;
+        }
+        .sandbox-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+        .variogram-values { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 0.8rem; margin: 10px 0; }
+        .variogram-values output { font-family: monospace; font-weight: 600; }
+        .variogram-plot { position: relative; width: 100%; }
+        #canvas-variogram { display: block; width: 100%; height: auto; border-radius: 6px; background: var(--bg); }
+        .variogram-handle {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            width: 44px;
+            height: 44px;
+            border: 0;
+            background: transparent;
+            color: var(--accent);
+            touch-action: none;
+            user-select: none;
+            border-radius: 50%;
+            cursor: ew-resize;
+        }
+        .variogram-handle::before {
+            content: '';
+            display: block;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            border: 3px solid currentColor;
+            border-radius: 50%;
+            background: var(--bg);
+            box-shadow: 0 0 0 3px var(--bg);
+        }
+        #handle-nugget { color: var(--highlight); cursor: ns-resize; }
+        .variogram-handle:hover::before, .variogram-handle.is-dragging::before { background: currentColor; }
+        .variogram-handle:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
+        .variogram-help { font-size: 0.75rem; color: var(--text-dim); margin-top: 10px; }
+        @media (max-width: 640px) {
+            .sandbox-layout { grid-template-columns: minmax(0, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -177,30 +222,22 @@
 
     <section id="geostats-sandbox">
     <h2>Interactive Geomodeling Sandbox</h2>
-    <p style="color: var(--text-dim); margin-bottom: 15px; font-size: 0.95rem;">
-        Explore dynamic spatial estimation based on the Walker Lake repository. Adjust the variogram structural parameters below to watch Ordinary Kriging maps and structural variance update in real-time.
-    </p>
     
     <div style="background: var(--nord-card); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
         <div class="sandbox-layout">
             
-            <div style="display: flex; flex-direction: column; justify-content: space-between; width: 100%; min-width: 0;">
-                <div style="background: var(--nord-dark); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--nord-text); font-size: 0.9rem;">
-                        Nugget Effect (C₀): <span id="val-nugget" style="float: right; color: var(--nord-green); font-family: monospace;">0.10</span>
-                    </label>
-                    <input type="range" id="input-nugget" min="0.00" max="0.90" step="0.05" value="0.10" style="width: 100%; margin-bottom: 15px; accent-color: var(--nord-blue);">
-
-                    <label style="display: block; font-weight: 600; margin-bottom: 6px; color: var(--nord-text); font-size: 0.9rem;">
-                        Spatial Range (a): <span id="val-range" style="float: right; color: var(--nord-green); font-family: monospace;">25 m</span>
-                    </label>
-                    <input type="range" id="input-range" min="1" max="60" step="1" value="25" style="width: 100%; accent-color: var(--nord-blue);">
+            <div style="width: 100%; min-width: 0;">
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--nord-blue);">Spherical variogram model</span>
+                <div class="variogram-values">
+                    <span style="color: var(--highlight);">Nugget C₀: <output id="val-nugget">0.10</output></span>
+                    <span style="color: var(--accent);">Range a: <output id="val-range">25 m</output></span>
                 </div>
-
-                <div style="text-align: center; width: 100%;">
-                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--nord-blue);">Variogram model</span>
-                    <canvas id="canvas-variogram" width="360" height="180" style="background: var(--nord-dark); border-radius: 6px; display: block; margin: 8px auto 0; max-width: 100%; height: auto;"></canvas>
+                <div class="variogram-plot">
+                    <canvas id="canvas-variogram" width="420" height="280" role="img" aria-label="Spherical variogram with a fixed total sill of 1. Use the two handles to adjust nugget and range."></canvas>
+                    <button type="button" id="handle-nugget" class="variogram-handle" role="slider" aria-label="Nugget effect" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="0.9" aria-valuenow="0.1" aria-describedby="variogram-help"></button>
+                    <button type="button" id="handle-range" class="variogram-handle" role="slider" aria-label="Spherical structure range" aria-orientation="horizontal" aria-valuemin="1" aria-valuemax="60" aria-valuenow="25" aria-valuetext="25 metres" aria-describedby="variogram-help"></button>
                 </div>
+                <p id="variogram-help" class="variogram-help">Drag the green handle ↕ for nugget and the blue handle ↔ for spherical range. Total sill stays at 1. Tab to a handle and use arrow keys for fine adjustments.</p>
             </div>
 
             <div style="text-align: center; width: 100%; min-width: 0;">
@@ -364,14 +401,18 @@
     const totalSill = 1.0;
     let viewMode = 'estimate';
 
-    const inputNugget = document.getElementById('input-nugget');
-    const inputRange = document.getElementById('input-range');
+    const handleNugget = document.getElementById('handle-nugget');
+    const handleRange = document.getElementById('handle-range');
     const valNugget = document.getElementById('val-nugget');
     const valRange = document.getElementById('val-range');
     const btnToggleView = document.getElementById('btn-toggle-view');
 
     const ctxVario = document.getElementById('canvas-variogram').getContext('2d');
     const ctxKriging = document.getElementById('canvas-kriging').getContext('2d');
+    const varioPlot = { left: 48, right: 388, top: 42, bottom: 228, maxDistance: 60 };
+    const nuggetControl = { handle: handleNugget, min: 0, max: 0.9, step: 0.01, vertical: true, get: () => currentNugget, set: value => { currentNugget = value; } };
+    const rangeControl = { handle: handleRange, min: 1, max: 60, step: 1, vertical: false, get: () => currentRange, set: value => { currentRange = value; } };
+    let krigingFrame = null;
 
     function parseWalkerLakeCsv(csvText) {
         const rows = csvText.trim().split(/\r?\n/);
@@ -440,41 +481,68 @@
     function drawVariogram() {
         const w = ctxVario.canvas.width;
         const h = ctxVario.canvas.height;
+        const { left, right, top, bottom, maxDistance } = varioPlot;
+        const x = distance => left + distance / maxDistance * (right - left);
+        const y = gamma => bottom - gamma / totalSill * (bottom - top);
         ctxVario.clearRect(0, 0, w, h);
-
         ctxVario.strokeStyle = '#4C566A';
         ctxVario.lineWidth = 1;
-        ctxVario.beginPath();
-        const ySill = h - 25 - (1.0 * (h - 45));
-        ctxVario.moveTo(35, ySill);
-        ctxVario.lineTo(w - 15, ySill);
-        ctxVario.stroke();
+        ctxVario.font = '12px sans-serif';
+        ctxVario.fillStyle = '#D8DEE9';
+        ctxVario.textAlign = 'right';
+        for (const gamma of [0, 0.5, 1]) {
+            ctxVario.beginPath();
+            ctxVario.moveTo(left, y(gamma));
+            ctxVario.lineTo(right, y(gamma));
+            ctxVario.stroke();
+            ctxVario.fillText(gamma.toFixed(1), left - 15, y(gamma) + 4);
+        }
+        ctxVario.textAlign = 'center';
+        for (let distance = 0; distance <= maxDistance; distance += 20) {
+            ctxVario.fillText(distance, x(distance), bottom + 20);
+        }
+        ctxVario.fillText('Distance h (m)', (left + right) / 2, h - 10);
+        ctxVario.textAlign = 'left';
+        ctxVario.fillText('γ(h)', 13, 23);
+        ctxVario.textAlign = 'right';
+        ctxVario.fillText('Total sill 1.0', right, top - 18);
 
-        ctxVario.strokeStyle = '#81A1C1';
+        ctxVario.setLineDash([4, 4]);
+        ctxVario.beginPath();
+        ctxVario.moveTo(x(currentRange), top);
+        ctxVario.lineTo(x(currentRange), bottom);
+        ctxVario.stroke();
+        // The nugget is the discontinuity at the origin; gamma(0) remains zero.
+        ctxVario.strokeStyle = '#A3BE8C';
+        ctxVario.beginPath();
+        ctxVario.moveTo(left, bottom);
+        ctxVario.lineTo(left, y(currentNugget));
+        ctxVario.stroke();
+        ctxVario.setLineDash([]);
+
+        ctxVario.strokeStyle = '#88C0D0';
         ctxVario.lineWidth = 2.5;
         ctxVario.beginPath();
-        const maxDistX = 60;
-        for (let px = 35; px < w - 15; px++) {
-            const dist = ((px - 35) / (w - 50)) * maxDistX;
-            const gamma = sphericalVariogram(dist, currentNugget, currentRange);
-            const py = h - 25 - (gamma * (h - 45));
-            if (px === 35) ctxVario.moveTo(px, py);
-            else ctxVario.lineTo(px, py);
+        ctxVario.moveTo(left, y(currentNugget));
+        for (let px = left + 0.5; px <= right; px += 0.5) {
+            const dist = (px - left) / (right - left) * maxDistance;
+            ctxVario.lineTo(px, y(sphericalVariogram(dist, currentNugget, currentRange)));
         }
         ctxVario.stroke();
 
         ctxVario.strokeStyle = '#E5E9F0';
         ctxVario.lineWidth = 1;
         ctxVario.beginPath();
-        ctxVario.moveTo(35, 10);
-        ctxVario.lineTo(35, h - 25);
-        ctxVario.lineTo(w - 15, h - 25);
+        ctxVario.moveTo(left, top - 10);
+        ctxVario.lineTo(left, bottom);
+        ctxVario.lineTo(right, bottom);
         ctxVario.stroke();
+        ctxVario.textAlign = 'left';
 
-        ctxVario.fillStyle = '#D8DEE9';
-        ctxVario.font = '9px sans-serif';
-        ctxVario.fillText("Sill 1.0", w - 55, ySill - 4);
-        ctxVario.fillText("0.0", 15, h - 22);
+        handleNugget.style.left = `${left / w * 100}%`;
+        handleNugget.style.top = `${y(currentNugget) / h * 100}%`;
+        handleRange.style.left = `${x(currentRange) / w * 100}%`;
+        handleRange.style.top = `${top / h * 100}%`;
     }
 
     function solveLinearSystem(A, B) {
@@ -510,12 +578,25 @@
         return Math.max(0, Math.min(1, value));
     }
 
-    function jetColor(value) {
-        const t = clamp01(value);
+    // Viridis samples from Matplotlib, interpolated for a continuous color scale.
+    const viridisStops = [
+        [68, 1, 84], [72, 24, 106], [71, 45, 123], [66, 64, 134],
+        [59, 82, 139], [51, 99, 141], [44, 114, 142], [38, 130, 142],
+        [33, 145, 140], [31, 160, 136], [40, 174, 128], [63, 188, 115],
+        [94, 201, 98], [132, 212, 75], [173, 220, 48], [216, 226, 25],
+        [253, 231, 37]
+    ];
+
+    function viridisColor(value) {
+        const position = clamp01(value) * (viridisStops.length - 1);
+        const index = Math.min(Math.floor(position), viridisStops.length - 2);
+        const fraction = position - index;
+        const start = viridisStops[index];
+        const end = viridisStops[index + 1];
         return {
-            r: Math.round(255 * clamp01(1.5 - Math.abs(4 * t - 3))),
-            g: Math.round(255 * clamp01(1.5 - Math.abs(4 * t - 2))),
-            b: Math.round(255 * clamp01(1.5 - Math.abs(4 * t - 1)))
+            r: Math.round(start[0] + (end[0] - start[0]) * fraction),
+            g: Math.round(start[1] + (end[1] - start[1]) * fraction),
+            b: Math.round(start[2] + (end[2] - start[2]) * fraction)
         };
     }
 
@@ -587,9 +668,9 @@
 
                 let r, g, b;
                 if (viewMode === 'estimate') {
-                    ({ r, g, b } = jetColor(est / estimateColorMax));
+                    ({ r, g, b } = viridisColor(est / estimateColorMax));
                 } else {
-                    ({ r, g, b } = jetColor(variance / 1.05));
+                    ({ r, g, b } = viridisColor(variance / 1.05));
                 }
 
                 for (let sy = 0; sy < step; sy++) {
@@ -608,26 +689,83 @@
         ctxKriging.putImageData(imgData, 0, 0);
 
         dataset.forEach(s => {
-            const color = jetColor(s.val / estimateColorMax);
+            const color = viridisColor(s.val / estimateColorMax);
             ctxKriging.beginPath();
             ctxKriging.arc(s.x, dataYToCanvasY(s.y, h), 2, 0, 2 * Math.PI);
             ctxKriging.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
-            ctxKriging.strokeStyle = '#2E3440';
-            ctxKriging.lineWidth = 0.5;
             ctxKriging.fill();
-            ctxKriging.stroke();
         });
     }
 
     function update() {
-        valNugget.innerText = currentNugget.toFixed(2);
-        valRange.innerText = currentRange + ' m';
+        valNugget.textContent = currentNugget.toFixed(2);
+        valRange.textContent = currentRange + ' m';
+        handleNugget.setAttribute('aria-valuenow', currentNugget.toFixed(2));
+        handleRange.setAttribute('aria-valuenow', currentRange);
+        handleRange.setAttribute('aria-valuetext', currentRange + ' metres');
         drawVariogram();
-        runKriging();
+        // Coalesce rapid pointer events into one map update per animation frame.
+        if (krigingFrame === null) {
+            krigingFrame = requestAnimationFrame(() => {
+                krigingFrame = null;
+                runKriging();
+            });
+        }
     }
 
-    inputNugget.addEventListener('input', (e) => { currentNugget = parseFloat(e.target.value); update(); });
-    inputRange.addEventListener('input', (e) => { currentRange = parseInt(e.target.value); update(); });
+    function setControlValue(control, value) {
+        const next = Number(Math.max(control.min, Math.min(control.max,
+            Math.round(value / control.step) * control.step)).toFixed(2));
+        if (next === control.get()) return;
+        control.set(next);
+        update();
+    }
+
+    function bindHandle(control) {
+        const handle = control.handle;
+        let drag = null;
+        handle.addEventListener('pointerdown', event => {
+            if (!event.isPrimary || event.button !== 0) return;
+            event.preventDefault();
+            handle.focus({ preventScroll: true });
+            handle.setPointerCapture(event.pointerId);
+            drag = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, value: control.get() };
+            handle.classList.add('is-dragging');
+        });
+        handle.addEventListener('pointermove', event => {
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            const rect = ctxVario.canvas.getBoundingClientRect();
+            const delta = control.vertical
+                ? -(event.clientY - drag.y) / rect.height * ctxVario.canvas.height / (varioPlot.bottom - varioPlot.top) * totalSill
+                : (event.clientX - drag.x) / rect.width * ctxVario.canvas.width / (varioPlot.right - varioPlot.left) * varioPlot.maxDistance;
+            setControlValue(control, drag.value + delta);
+        });
+        function endDrag(event) {
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            drag = null;
+            handle.classList.remove('is-dragging');
+            if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+        }
+        handle.addEventListener('pointerup', endDrag);
+        handle.addEventListener('pointercancel', endDrag);
+        handle.addEventListener('lostpointercapture', endDrag);
+        handle.addEventListener('keydown', event => {
+            let next = control.get();
+            const step = control.step * (event.shiftKey ? 5 : 1);
+            switch (event.key) {
+                case 'ArrowUp': case 'ArrowRight': next += step; break;
+                case 'ArrowDown': case 'ArrowLeft': next -= step; break;
+                case 'Home': next = control.min; break;
+                case 'End': next = control.max; break;
+                default: return;
+            }
+            event.preventDefault();
+            setControlValue(control, next);
+        });
+    }
+
+    bindHandle(nuggetControl);
+    bindHandle(rangeControl);
     btnToggleView.addEventListener('click', () => {
         if (viewMode === 'estimate') {
             viewMode = 'variance';
